@@ -1,0 +1,361 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: #f4f6f8;
+}
+
+.login-page {
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-card {
+    width: 420px;
+    background-color: white;
+    padding: 40px;
+    border-radius: 10px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+}
+.login-header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+.login-header h1 {
+    font-size: 32px;
+    margin-bottom: 8px;
+}
+
+.login-header p {
+    color: #666;
+    font-size: 15px;
+}
+
+.form-group {
+    margin-bottom: 20px;
+}
+
+.form-group label {
+    display: block;
+    margin-bottom: 7px;
+    font-weight: 600;
+    font-size: 14px;
+}
+
+.form-group input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    font-size: 15px;
+    outline: none;
+}
+
+.form-group input:focus {
+    border-color: #2563eb;
+}
+
+.form-options {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 25px;
+    font-size: 14px;
+}
+
+.form-options label {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.form-options a {
+    color: #2563eb;
+    text-decoration: none;
+}
+
+.form-options a:hover {
+    text-decoration: underline;
+}
+
+.login-button {
+    width: 100%;
+    padding: 13px;
+    border: none;
+    border-radius: 6px;
+    background-color: #2563eb;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    cursor: pointer;
+}
+
+.login-button:hover {
+    background-color: #1d4ed8;
+}
+
+.app-layout {
+    min-height: 100vh;
+    display: flex;
+}
+
+.sidebar {
+    width: 250px;
+    min-height: 100vh;
+    background: #172033;
+    color: white;
+    padding: 28px 20px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.sidebar-logo {
+    padding: 0 10px 30px;
+}
+
+.sidebar-logo h2 {
+    font-size: 22px;
+}
+
+.sidebar-menu {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.sidebar-menu a,
+.sidebar-bottom a {
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 12px 14px;
+    border-radius: 7px;
+}
+
+.sidebar-menu a:hover,
+.sidebar-menu a.active {
+    background: #2563eb;
+    color: white;
+}
+
+.sidebar-bottom {
+    margin-top: auto;
+}
+/* ==================================================
+   MAIN APPLICATION AREA
+================================================== */
+
+.dashboard-main {
+    flex: 1;
+    min-width: 0;
+    width: 100%;
+    background-color: #f4f6f8;
+}
+
+
+/* ==================================================
+   TOPBAR
+================================================== */
+
+.topbar {
+    width: 100%;
+
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    padding: 22px 32px;
+
+    background-color: #ffffff;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.topbar h1 {
+    margin-bottom: 5px;
+
+    color: #111827;
+
+    font-size: 26px;
+}
+
+.topbar > div:first-child > p {
+    color: #64748b;
+
+    font-size: 14px;
+}
+
+
+/* ==================================================
+   TOPBAR USER
+================================================== */
+
+.topbar-user {
+    display: flex;
+    align-items: center;
+
+    gap: 14px;
+}
+
+.topbar-user > span {
+    font-size: 20px;
+
+    cursor: pointer;
+}
+
+.topbar-user strong {
+    display: block;
+
+    color: #111827;
+
+    font-size: 14px;
+}
+
+.topbar-user p {
+    margin-top: 3px;
+
+    color: #64748b;
+
+    font-size: 12px;
+}
+
+
+/* ==================================================
+   PAGE CONTENT
+================================================== */
+
+.dashboard-content {
+    width: 100%;
+
+    padding: 30px;
+}
+
+
+/* ==================================================
+   TABLET
+================================================== */
+
+@media (max-width: 900px) {
+
+    .sidebar {
+        width: 210px;
+    }
+
+    .dashboard-content {
+        padding: 22px;
+    }
+
+    .topbar {
+        padding: 20px 22px;
+    }
+}
+
+
+/* ==================================================
+   PHONE
+================================================== */
+
+@media (max-width: 750px) {
+
+    .app-layout {
+        flex-direction: column;
+    }
+
+
+    /* Sidebar becomes top navigation */
+
+    .sidebar {
+        width: 100%;
+        min-height: auto;
+
+        padding: 15px;
+    }
+
+    .sidebar-logo {
+        padding: 5px 5px 15px;
+    }
+
+    .sidebar-logo h2 {
+        text-align: center;
+
+        font-size: 20px;
+    }
+
+    .sidebar-menu {
+        flex-direction: row;
+
+        gap: 6px;
+
+        overflow-x: auto;
+
+        padding-bottom: 5px;
+    }
+
+    .sidebar-menu a {
+        flex-shrink: 0;
+
+        padding: 10px 14px;
+
+        white-space: nowrap;
+
+        font-size: 14px;
+    }
+
+    .sidebar-bottom {
+        display: none;
+    }
+
+
+    /* Main */
+
+    .dashboard-main {
+        width: 100%;
+    }
+
+
+    /* Topbar */
+
+    .topbar {
+        padding: 16px 18px;
+    }
+
+    .topbar h1 {
+        font-size: 22px;
+    }
+
+    .topbar-user {
+        display: none;
+    }
+
+
+    /* Content */
+
+    .dashboard-content {
+        width: 100%;
+
+        padding: 15px;
+    }
+}
+
+
+/* ==================================================
+   SMALL PHONE
+================================================== */
+
+@media (max-width: 480px) {
+
+    .dashboard-content {
+        padding: 12px;
+    }
+
+    .topbar {
+        align-items: flex-start;
+    }
+}
+

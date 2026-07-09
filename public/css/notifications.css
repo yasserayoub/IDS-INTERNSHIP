@@ -1,0 +1,492 @@
+/* ==================================================
+   NOTIFICATIONS PAGE
+================================================== */
+
+.notifications-toolbar,
+.notifications-card {
+    width: 100%;
+    box-sizing: border-box;
+}
+
+
+/* ==================================================
+   TOOLBAR
+================================================== */
+
+.notifications-toolbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+    margin-bottom: 24px;
+}
+
+
+/* ==================================================
+   TABS
+================================================== */
+
+.notification-tabs {
+    display: flex;
+    gap: 6px;
+
+    padding: 4px;
+
+    background-color: #e9eef5;
+    border-radius: 10px;
+}
+
+
+.tab-button {
+    padding: 10px 20px;
+
+    background-color: transparent;
+    color: #475569;
+
+    border: none;
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        color 0.2s ease;
+}
+
+
+.tab-button:hover {
+    background-color: #ffffff;
+}
+
+
+.tab-button.active {
+    background-color: #2563eb;
+    color: #ffffff;
+
+    box-shadow: 0 2px 6px rgba(37, 99, 235, 0.2);
+}
+
+
+/* ==================================================
+   MARK ALL AS READ
+================================================== */
+
+.mark-read-button {
+    padding: 10px 16px;
+
+    background-color: #ffffff;
+    color: #2563eb;
+
+    border: 1px solid #dbe3ee;
+    border-radius: 7px;
+
+    font-size: 14px;
+    font-weight: 600;
+
+    cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease;
+}
+
+
+.mark-read-button:hover {
+    background-color: #eff6ff;
+    border-color: #bfdbfe;
+}
+
+
+/* ==================================================
+   NOTIFICATIONS CONTAINER
+================================================== */
+
+.notifications-card {
+    background-color: #ffffff;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 12px;
+
+    overflow: hidden;
+
+    box-shadow: 0 3px 12px rgba(15, 23, 42, 0.05);
+}
+
+
+/* ==================================================
+   NOTIFICATION ITEM
+================================================== */
+
+.notification-item {
+    position: relative;
+
+    display: flex;
+    align-items: center;
+
+    width: 100%;
+    min-height: 100px;
+
+    gap: 18px;
+
+    padding: 20px 32px;
+
+    background-color: #ffffff;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    box-sizing: border-box;
+
+    transition: background-color 0.2s ease;
+}
+
+
+.notification-item:last-child {
+    border-bottom: none;
+}
+
+
+.notification-item:hover {
+    background-color: #f8fafc;
+}
+
+
+/* ==================================================
+   UNREAD NOTIFICATION
+================================================== */
+
+.notification-item.unread {
+    background-color: #f5f9ff;
+
+    border-left: 4px solid #2563eb;
+
+    padding: 20px 32px 20px 28px;
+}
+
+
+.notification-item.unread:hover {
+    background-color: #eff6ff;
+}
+
+
+/* ==================================================
+   NOTIFICATION ICON
+================================================== */
+
+.notification-icon {
+    width: 48px;
+    height: 48px;
+
+    flex-shrink: 0;
+
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    background-color: #f1f5f9;
+
+    border: 1px solid #e2e8f0;
+    border-radius: 10px;
+
+    font-size: 20px;
+}
+
+
+/* ==================================================
+   NOTIFICATION CONTENT
+================================================== */
+
+.notification-content {
+    flex: 1;
+    min-width: 0;
+
+    padding-right: 20px;
+}
+
+
+/* ==================================================
+   NOTIFICATION HEADER
+================================================== */
+
+.notification-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+
+    gap: 20px;
+
+    margin-bottom: 6px;
+}
+
+
+.notification-header h3 {
+    margin: 0;
+
+    color: #0f172a;
+
+    font-size: 16px;
+    font-weight: 700;
+}
+
+
+.notification-header span {
+    flex-shrink: 0;
+
+    color: #94a3b8;
+
+    font-size: 12px;
+
+    margin-right: 15px;
+}
+
+
+/* ==================================================
+   NOTIFICATION MESSAGE
+================================================== */
+
+.notification-content p {
+    margin: 0 0 7px;
+
+    color: #475569;
+
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+
+/* ==================================================
+   NOTIFICATION LINK
+================================================== */
+
+.notification-content a {
+    display: inline-block;
+
+    color: #2563eb;
+
+    text-decoration: none;
+
+    font-size: 13px;
+    font-weight: 600;
+}
+
+
+.notification-content a:hover {
+    text-decoration: underline;
+}
+
+
+/* ==================================================
+   UNREAD DOT
+================================================== */
+
+.unread-dot {
+    position: absolute;
+
+    top: 25px;
+    right: 15px;
+
+    width: 8px;
+    height: 8px;
+
+    background-color: #2563eb;
+
+    border-radius: 50%;
+}
+
+
+/* ==================================================
+   TABLET
+================================================== */
+
+@media (max-width: 900px) {
+
+    .notification-item {
+        min-height: 95px;
+
+        gap: 15px;
+
+        padding: 18px 22px;
+    }
+
+
+    .notification-item.unread {
+        padding: 18px 22px 18px 18px;
+    }
+
+
+    .notification-icon {
+        width: 44px;
+        height: 44px;
+
+        font-size: 19px;
+    }
+
+
+    .notification-header h3 {
+        font-size: 15px;
+    }
+}
+
+
+/* ==================================================
+   PHONE
+================================================== */
+
+@media (max-width: 600px) {
+
+    .notifications-toolbar {
+        gap: 10px;
+
+        margin-bottom: 18px;
+    }
+
+
+    .notification-tabs {
+        flex-shrink: 0;
+    }
+
+
+    .tab-button {
+        padding: 8px 13px;
+
+        font-size: 13px;
+    }
+
+
+    .mark-read-button {
+        padding: 8px 10px;
+
+        font-size: 12px;
+    }
+
+
+    .notification-item {
+        align-items: flex-start;
+
+        min-height: auto;
+
+        gap: 12px;
+
+        padding: 16px 14px;
+    }
+
+
+    .notification-item.unread {
+        padding: 16px 14px 16px 10px;
+    }
+
+
+    .notification-icon {
+        width: 40px;
+        height: 40px;
+
+        border-radius: 9px;
+
+        font-size: 17px;
+    }
+
+
+    .notification-content {
+        padding-right: 8px;
+    }
+
+
+    .notification-header {
+        flex-direction: column;
+        align-items: flex-start;
+
+        gap: 3px;
+
+        margin-bottom: 6px;
+    }
+
+
+    .notification-header h3 {
+        font-size: 14px;
+    }
+
+
+    .notification-header span {
+        margin-right: 0;
+
+        font-size: 11px;
+    }
+
+
+    .notification-content p {
+        margin-bottom: 7px;
+
+        font-size: 13px;
+        line-height: 1.5;
+    }
+
+
+    .notification-content a {
+        font-size: 12px;
+    }
+
+
+    .unread-dot {
+        top: 18px;
+        right: 7px;
+
+        width: 7px;
+        height: 7px;
+    }
+}
+
+
+/* ==================================================
+   VERY SMALL PHONES
+================================================== */
+
+@media (max-width: 400px) {
+
+    .notifications-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+
+    .notification-tabs {
+        width: fit-content;
+    }
+
+
+    .mark-read-button {
+        width: fit-content;
+    }
+
+
+    .notification-item {
+        gap: 9px;
+
+        padding: 14px 10px;
+    }
+
+
+    .notification-item.unread {
+        padding: 14px 10px 14px 7px;
+    }
+
+
+    .notification-icon {
+        width: 36px;
+        height: 36px;
+
+        font-size: 15px;
+    }
+
+
+    .notification-header h3 {
+        font-size: 13px;
+    }
+
+
+    .notification-content p {
+        font-size: 12px;
+    }
+}
