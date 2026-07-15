@@ -7,6 +7,7 @@ Route::get('/', function () {
 });
 
 Route::view('/', 'auth.login');
+Route::view('layout', 'layouts.app');
 Route::view('/dashboard', 'dashboard.index');
 Route::view('/tickets', 'tickets.index');
 Route::view('/tickets/create', 'tickets.create');
