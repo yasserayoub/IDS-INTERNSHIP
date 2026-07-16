@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login | IT Help Desk</title>
 
-<link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
 <body>
 
@@ -17,14 +17,17 @@
                 <p>Sign in to manage and track support tickets.</p>
             </div>
 
-            <form class="login-form">
+            <form class="login-form" action="{{ route('login') }}" method="POST">
+                @csrf
 
                 <div class="form-group">
                     <label for="email">Email Address</label>
                     <input
                         type="email"
                         id="email"
+                        name="Email"
                         placeholder="name@company.com"
+                        value="{{ old('Email') }}"
                     >
                 </div>
 
@@ -33,20 +36,21 @@
                     <input
                         type="password"
                         id="password"
+                        name="Password"
                         placeholder="Enter your password"
                     >
                 </div>
 
                 <div class="form-options">
                     <label>
-                        <input type="checkbox">
+                        <input type="checkbox" name="remember">
                         Remember me
                     </label>
 
                     <a href="#">Forgot password?</a>
                 </div>
 
-                <button type="button" class="login-button">
+                <button type="submit" class="login-button">
                     Sign In
                 </button>
 

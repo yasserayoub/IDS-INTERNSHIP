@@ -334,6 +334,7 @@ body {
     }
 
 
+
     /* Content */
 
     .dashboard-content {
@@ -357,5 +358,29 @@ body {
     .topbar {
         align-items: flex-start;
     }
+}
+.logout-button {
+    width: 100%;
+    padding: 12px 14px;
+
+    background: transparent;
+    border: none;
+
+    color: #cbd5e1;
+
+    text-align: left;
+    text-decoration: none;
+
+    font-size: inherit;
+    font-family: inherit;
+
+    border-radius: 7px;
+
+    cursor: pointer;
+}
+
+.logout-button:hover {
+    background: #2563eb;
+    color: white;
 }
 

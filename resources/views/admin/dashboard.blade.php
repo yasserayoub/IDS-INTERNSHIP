@@ -229,7 +229,7 @@
             </a>
 
 
-           <a href="/admin/users" class="quick-action">
+           <a href="{{route('UserManagementpage')}}" class="quick-action">
                 <span>👥</span>
 
                 <div>

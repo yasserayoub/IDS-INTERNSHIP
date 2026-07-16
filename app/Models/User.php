@@ -2,48 +2,105 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-use Database\Factories\UserFactory;
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
 class User extends Authenticatable
 {
-    /** @use HasFactory<UserFactory> */
-    use HasFactory, Notifiable;
+    use Notifiable;
 
-    /**
-     * The attributes that are mass assignable.
-     *
-     * @var list<string>
-     */
+    protected $table = 'Users';
+
+    protected $primaryKey = 'Id';
+
+    public $timestamps = false;
+
     protected $fillable = [
-        'name',
-        'email',
-        'password',
+        'RoleId',
+        'Name',
+        'Email',
+        'Password',
+        'Phone',
+        'Department',
+        'IsActive',
+        'RememberToken',
+        'CreatedAt',
+        'UpdatedAt',
     ];
+    public function getAuthPassword()
+{
+    return $this->Password;
+}
 
-    /**
-     * The attributes that should be hidden for serialization.
-     *
-     * @var list<string>
-     */
     protected $hidden = [
-        'password',
-        'remember_token',
+        'Password',
+        'RememberToken',
     ];
 
-    /**
-     * Get the attributes that should be cast.
-     *
-     * @return array<string, string>
-     */
     protected function casts(): array
     {
         return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
+            'Password' => 'hashed',
+            'IsActive' => 'boolean',
+            'CreatedAt' => 'datetime',
+            'UpdatedAt' => 'datetime',
         ];
     }
+
+    /**
+     * A user belongs to one role.
+     */
+    public function role()
+    {
+        return $this->belongsTo(Role::class, 'RoleId', 'Id');
+    }
+
+    /**
+     * A user can create many tickets.
+     */
+    public function createdTickets()
+    {
+        return $this->hasMany(Ticket::class, 'CreatedByUserId', 'Id');
+    }
+
+    /**
+     * A user can have many ticket assignments.
+     */
+    public function ticketAssignments()
+    {
+        return $this->hasMany(TicketAssignment::class, 'UserId', 'Id');
+    }
+
+    /**
+     * A user can write many ticket comments.
+     */
+    public function ticketComments()
+    {
+        return $this->hasMany(TicketComment::class, 'UserId', 'Id');
+    }
+
+    /**
+     * A user can receive many notifications.
+     */
+    public function notifications()
+    {
+        return $this->hasMany(Notification::class, 'UserId', 'Id');
+    }
+
+    /**
+     * A user can have many activity logs.
+     */
+    public function activityLogs()
+    {
+        return $this->hasMany(ActivityLog::class, 'UserId', 'Id');
+    }
+
+    /**
+     * A user can be mentioned in many comment mentions.
+     */
+    public function commentMentions()
+    {
+        return $this->hasMany(CommentMention::class, 'MentionedUserId', 'Id');
+    }
 }
+
