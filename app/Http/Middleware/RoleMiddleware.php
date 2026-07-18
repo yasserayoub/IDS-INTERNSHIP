@@ -12,7 +12,7 @@ class RoleMiddleware
     public function handle(Request $request, Closure $next, ...$roles): Response
     {
         // User must be logged in
-        if (!Auth::check()) {
+        if (!Auth::check() || !Auth::user()->IsActive) {
             return redirect('/');
         }
 

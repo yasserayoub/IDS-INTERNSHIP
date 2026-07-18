@@ -5,6 +5,10 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\AdminUserController;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeTicketController;
+use Illuminate\Support\Facades\Mail;
+use App\Mail\TestMail;
+use App\Http\Controllers\ForgotPasswordController;
+use App\Mail\ResetPasswordMail;
 
 // =========================
 // Authentication
@@ -77,3 +81,27 @@ Route::put('/employee/tickets/{id}', [EmployeeTicketController::class, 'update']
 Route::delete('/employee/tickets/{id}', [EmployeeTicketController::class, 'destroy'])
     ->middleware('role:Employee')
     ->name('employee.tickets.destroy');
+
+
+    Route::get('/test-email', function () {
+
+    Mail::to('ayoubyaser89@gmail.com')->send(new TestMail());
+
+    return 'Email sent successfully!';
+
+});
+//forogt password routes
+Route::get('/forgot-password', [ForgotPasswordController::class, 'showForgotForm'])
+    ->name('passwordForgetpage');
+
+Route::post('/forgot-password', [ForgotPasswordController::class, 'sendResetLink'])
+    ->name('SendResetLink');
+
+    // Show the reset password form
+Route::get('/passwordresetform/{token}', [ForgotPasswordController::class, 'showResetForm'])
+    ->name('passwordResetForm');
+
+// Save the new password
+Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'])
+    ->name('passwordUpdate');
+

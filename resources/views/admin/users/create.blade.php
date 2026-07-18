@@ -11,12 +11,18 @@
 @section('content')
 @section('page-css')
 <link rel="stylesheet" href="{{ asset('css/create.css') }}">
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 @endsection
 
 <div class="card">
 
     <h2>Add User</h2>
     <p>Create a new account for an employee or IT support member.</p>
+    @if(session('success'))
+    <div class="alert alert-success" role="alert">
+        {{ session('success') }}
+    </div>
+@endif
 
     <form action="{{ route('StoreUser') }}" method="POST">
 
