@@ -76,131 +76,62 @@
 
         <tbody>
 
-            <!-- Ticket 1 -->
-            <tr>
-
-                <td>#TKT-1001</td>
-                <td>Unable to connect to VPN</td>
-                <td>Network</td>
-
-                <td>
-                    <span class="priority-high">High</span>
-                </td>
-
-                <td>
-                    <span class="status-open">Open</span>
-                </td>
-
-                <td>Jul 9, 2026</td>
-
-                <td class="action-buttons">
-
-                    <a href="{{ route('employee.tickets.show', 1001) }}" class="view-btn">
-                        View
-                    </a>
-
-                    <a href="{{ route('employee.tickets.edit', 1001) }}" class="edit-btn">
-                        Edit
-                    </a>
-
-                    <form action="{{ route('employee.tickets.destroy', 1001) }}" method="POST" class="delete-form">
-
-                        @csrf
-                        @method('DELETE')
-
-                        <button type="submit" class="delete-btn">
-                            Delete
-                        </button>
-
-                    </form>
-
-                </td>
-
-            </tr>
 
 
-            <!-- Ticket 2 -->
-            <tr>
 
-                <td>#TKT-1005</td>
-                <td>Printer not working</td>
-                <td>Hardware</td>
+@foreach ($tickets as $ticket)
 
-                <td>
-                    <span class="priority-low">Low</span>
-                </td>
+<tr>
 
-                <td>
-                    <span class="status-progress">In Progress</span>
-                </td>
+    <td>{{ $ticket->ReferenceNumber }}</td>
 
-                <td>Jul 7, 2026</td>
+    <td>{{ $ticket->Title }}</td>
 
-                <td class="action-buttons">
+    <td>{{ $ticket->category->Name }}</td>
 
-                    <a href="{{ route('employee.tickets.show', 1005) }}" class="view-btn">
-                        View
-                    </a>
+    <td>
+        <span class="priority-{{ strtolower($ticket->priority->Name) }}">
+            {{ $ticket->priority->Name }}
+        </span>
+    </td>
 
-                </td>
+    <td>
+            {{ $ticket->status->Name }}
+        </span>
+    </td>
 
-            </tr>
+    <td>{{ $ticket->CreatedAt->format('M d, Y') }}</td>
 
+    <td class="action-buttons">
 
-            <!-- Ticket 3 -->
-            <tr>
+        <a href="{{ route('employee.tickets.show', $ticket->Id) }}" class="view-btn">
+            View
+        </a>
 
-                <td>#TKT-1007</td>
-                <td>Outlook synchronization issue</td>
-                <td>Email</td>
+        <a href="{{ route('employee.tickets.edit', $ticket->Id) }}" class="edit-btn">
+            Edit
+        </a>
 
-                <td>
-                    <span class="priority-medium">Medium</span>
-                </td>
+        <form action="{{ route('employee.tickets.destroy', $ticket->Id) }}" method="POST" class="delete-form">
 
-                <td>
-                    <span class="status-resolved">Resolved</span>
-                </td>
+            @csrf
+            @method('DELETE')
 
-                <td>Jul 2, 2026</td>
+            <button type="submit" class="delete-btn">
+                Delete
+            </button>
 
-                <td class="action-buttons">
+        </form>
 
-                    <a href="/tickets/1007" class="view-btn">
-                        View
-                    </a>
+    </td>
 
-                </td>
+</tr>
 
-            </tr>
+@endforeach
 
 
-            <!-- Ticket 4 -->
-            <tr>
 
-                <td>#TKT-1009</td>
-                <td>Email signature issue</td>
-                <td>Email</td>
 
-                <td>
-                    <span class="priority-low">Low</span>
-                </td>
-
-                <td>
-                    <span class="status-pending">Pending</span>
-                </td>
-
-                <td>Jun 30, 2026</td>
-
-                <td class="action-buttons">
-
-                    <a href="/tickets/1009" class="view-btn">
-                        View
-                    </a>
-
-                </td>
-
-            </tr>
 
         </tbody>
 

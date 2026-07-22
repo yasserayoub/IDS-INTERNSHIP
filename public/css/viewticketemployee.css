@@ -242,3 +242,14 @@
     }
 
 }
+.btndownload {
+        display:inline-block;
+        text-decoration:none;
+        border:none;
+        cursor:pointer;
+        padding:12px 24px;
+        border-radius:10px;
+        font-size:15px;
+        font-weight:600;
+        transition:.3s;
+}

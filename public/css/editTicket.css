@@ -124,3 +124,48 @@ input[type="file"]{
         text-align:center;
     }
 }
+.attachment-list {
+    list-style: none;
+    padding: 0;
+    margin-top: 10px;
+}
+
+.attachment-list li {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 16px;
+    margin-bottom: 10px;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background: #f8f9fa;
+}
+
+.attachment-actions {
+    display: flex;
+    gap: 10px;
+    align-items: center;
+}
+
+.attachment-actions form {
+    margin: 0;
+}
+
+.btndownload,
+.btn-danger {
+    padding: 8px 14px;
+    border-radius: 6px;
+    text-decoration: none;
+    border: none;
+    cursor: pointer;
+}
+
+.btndownload {
+    background: #2563eb;
+    color: white;
+}
+
+.btn-danger {
+    background: #dc3545;
+    color: white;
+}

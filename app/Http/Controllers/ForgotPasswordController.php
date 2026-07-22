@@ -24,10 +24,10 @@ class ForgotPasswordController extends Controller
             'Email' => 'required|email',
         ]);
 
-        // Check if the user exists
-        $user = User::where('Email', $request->Email)->first();
 
-        if (!$user) {
+           $user = User::where('Email', $request->Email)->first();
+
+      if (!$user) {
             return back()->withErrors([
                 'Email' => 'No account was found with that email address.',
             ]);

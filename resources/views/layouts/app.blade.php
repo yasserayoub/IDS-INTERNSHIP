@@ -11,6 +11,7 @@
     <title>@yield('title', 'IT Help Desk')</title>
 
     <link rel="stylesheet" href="{{ asset('css/style.css') }}">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 
     @yield('page-css')
 </head>
@@ -59,7 +60,7 @@
                     Dashboard
                 </a>
 
-                <a href="/tickets"
+                <a href="{{route('allticketspage')}}"
                    class="@yield('tickets-active')">
                     Tickets
                 </a>
@@ -80,7 +81,7 @@
             <!-- Employee only -->
             @if(Auth::check() && Auth::user()->role->Name == 'Employee')
 
-                <a href="/tickets/create"
+                <a href="{{ route('CreateTicket') }}"
                    class="@yield('create-ticket-active')">
                     Create Ticket
                 </a>

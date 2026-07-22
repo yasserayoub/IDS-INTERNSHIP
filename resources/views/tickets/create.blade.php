@@ -1,25 +1,20 @@
-<div>
-    <!-- Because you are alive, everything is possible. - Thich Nhat Hanh -->
-</div>@extends('layouts.app')
+@extends('layouts.app')
 
 @section('title', 'Create Ticket | IT Help Desk')
 
+
 @section('page-css')
-    <link rel="stylesheet" href="{{ asset('css/create-ticket.css') }}">
+<link rel="stylesheet" href="{{ asset('css/create-ticket.css') }}">
 @endsection
 
 @section('page-title', 'Create Ticket')
 
-@section(
-    'page-description',
-    'Submit a new support request to the IT support team.'
-)
+@section('page-description', 'Submit a new support request to the IT support team.')
 
 @section('create-ticket-active', 'active')
-
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/css/bootstrap.min.css" rel="stylesheet">
 
 @section('content')
-
 <div class="create-ticket-container">
 
     <section class="ticket-form-card">
@@ -28,17 +23,32 @@
             <h2>New Support Ticket</h2>
             <p>Provide details about the issue you are experiencing.</p>
         </div>
+     @if (session('success'))
+    <div class="alert alert-success">
+        {{ session('success') }}
+    </div>
+@endif
+        @if ($errors->any())
+            <div class="alert alert-danger">
+                <ul>
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
 
+        <form action="{{ route('tickets.store') }}" method="POST" enctype="multipart/form-data">
 
-        <form>
+            @csrf
 
             <div class="form-group">
-                <label for="title">Ticket Title</label>
+                <label for="Title">Ticket Title</label>
 
                 <input
                     type="text"
-                    id="title"
-                    name="title"
+                    id="Title"
+                    name="Title"
                     placeholder="Example: Unable to connect to VPN"
                 >
 
@@ -47,45 +57,46 @@
                 </small>
             </div>
 
+            <div class="form-group">
 
-            <div class="form-row">
+                <label for="CategoryId">Category</label>
 
-                <div class="form-group">
-                    <label for="category">Category</label>
+                <select id="CategoryId" name="CategoryId">
+                    <option value="">Select Category</option>
 
-                    <select id="category" name="category">
-                        <option value="">Select category</option>
-                        <option>Hardware</option>
-                        <option>Software</option>
-                        <option>Network</option>
-                        <option>Email</option>
-                        <option>Access Request</option>
-                        <option>Other</option>
-                    </select>
-                </div>
+                    @foreach($categories as $category)
+                        <option value="{{ $category->Id }}">
+                            {{ $category->Name }}
+                        </option>
+                    @endforeach
 
-
-                <div class="form-group">
-                    <label for="priority">Priority</label>
-
-                    <select id="priority" name="priority">
-                        <option value="">Select priority</option>
-                        <option>Low</option>
-                        <option>Medium</option>
-                        <option>High</option>
-                        <option>Critical</option>
-                    </select>
-                </div>
+                </select>
 
             </div>
 
+            <div class="form-group">
+
+                <label for="PriorityId">Priority</label>
+
+                <select id="PriorityId" name="PriorityId">
+                    <option value="">Select Priority</option>
+
+                    @foreach($priorities as $priority)
+                        <option value="{{ $priority->Id }}">
+                            {{ $priority->Name }}
+                        </option>
+                    @endforeach
+
+                </select>
+
+            </div>
 
             <div class="form-group">
-                <label for="description">Issue Description</label>
+                <label for="Description">Issue Description</label>
 
                 <textarea
-                    id="description"
-                    name="description"
+                    id="Description"
+                    name="Description"
                     rows="8"
                     placeholder="Describe the issue in detail. Include any error messages and steps you have already tried."
                 ></textarea>
@@ -94,7 +105,6 @@
                     Provide as much information as possible to help the support team.
                 </small>
             </div>
-
 
             <div class="form-group">
 
@@ -127,7 +137,6 @@
 
             </div>
 
-
             <div class="form-actions">
 
                 <a href="/tickets" class="cancel-button">
@@ -143,7 +152,6 @@
         </form>
 
     </section>
-
 
     <aside class="ticket-help-card">
 

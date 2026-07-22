@@ -3,14 +3,20 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Ticket extends Model
 {
+    use SoftDeletes;
+
+    const DELETED_AT = 'DeletedAt'; // laravel default is deleted_at so we defined it as we want
+
     protected $table = 'Tickets';
 
     protected $primaryKey = 'Id';
 
     public $timestamps = false;
+
 
     protected $fillable = [
         'ReferenceNumber',
@@ -41,7 +47,7 @@ class Ticket extends Model
      */
     public function creator()
     {
-        return $this->belongsTo(User::class, 'CreatedByUserId', 'Id'); // one to one relationship, a ticket belongs to one user (creator), and a user can create many tickets.  
+        return $this->belongsTo(User::class, 'CreatedByUserId', 'Id'); // one to one relationship, a ticket belongs to one user (creator), and a user can create many tickets.
     }
 
     /**

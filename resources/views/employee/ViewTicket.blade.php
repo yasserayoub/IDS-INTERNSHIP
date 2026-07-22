@@ -16,15 +16,17 @@
 
 <div class="ticket-card">
 
+
+
     <div class="ticket-header">
 
         <div>
-            <h2>#TKT-1001</h2>
+            <h2>{{ $ticket->ReferenceNumber }}</h2>
             <p>Support Request Details</p>
         </div>
 
         <span class="status-open">
-            Open
+            {{ $ticket->status->Name }}
         </span>
 
     </div>
@@ -35,7 +37,7 @@
 
             <label>Title</label>
 
-            <p>Unable to connect to VPN</p>
+            <p>{{ $ticket->Title }}</p>
 
         </div>
 
@@ -43,7 +45,7 @@
 
             <label>Category</label>
 
-            <p>Network</p>
+            <p>{{ $ticket->category->Name }}</p>
 
         </div>
 
@@ -52,7 +54,7 @@
             <label>Priority</label>
 
             <span class="priority-high">
-                High
+                {{ $ticket->priority->Name }}
             </span>
 
         </div>
@@ -61,7 +63,7 @@
 
             <label>Created</label>
 
-            <p>Jul 9, 2026</p>
+            <p>{{ $ticket->CreatedAt->format('M j, Y') }}</p>
 
         </div>
 
@@ -69,7 +71,7 @@
 
             <label>Last Updated</label>
 
-            <p>Jul 10, 2026</p>
+            <p>{{ $ticket->UpdatedAt->format('M j, Y') }}</p>
 
         </div>
 
@@ -77,7 +79,7 @@
 
             <label>Assigned To</label>
 
-            <p>Ahmad Hassan</p>
+            {{-- <p>{{ $ticket->assignedTo->Name }}</p> --}}
 
         </div>
 
@@ -89,9 +91,7 @@
         <h3>Description</h3>
 
         <p>
-            I cannot connect to the company VPN since this morning.
-            Every time I try to connect, Windows displays error 809.
-            I restarted my computer and internet router but the issue still exists.
+          {{$ticket->Description}}
         </p>
 
     </div>
@@ -101,17 +101,21 @@
 
         <h3>Attachments</h3>
 
-        <ul class="attachment-list">
+       <ul class="attachment-list">
 
-            <li>
-                📄 vpn-error.png
-            </li>
+    @foreach ($ticket->attachments as $attachment)
 
-            <li>
-                📄 screenshot.jpg
-            </li>
+        <li>
+            <span>📎 {{ $attachment->OriginalFileName }}</span>
 
-        </ul>
+            <a class="btndownload" href="{{ route('employee.tickets.downloadAttachment', ['id' => $attachment->Id]) }}">
+                Download
+            </a>
+        </li>
+
+    @endforeach
+
+</ul>
 
     </div>
 
@@ -122,11 +126,11 @@
             Back
         </a>
 
-        <a href="{{ route('employee.tickets.edit', ['id' => $ticketId]) }}" class="btn-warning">
+        <a href="{{ route('employee.tickets.edit', ['id' => $ticket->Id]) }}" class="btn-warning">
             Edit
         </a>
 
-        <form action="{{ route('employee.tickets.destroy', ['id' => $ticketId]) }}" method="POST">
+        <form action="{{ route('employee.tickets.destroy', ['id' => $ticket->Id]) }}" method="POST">
 
             @csrf
             @method('DELETE')

@@ -94,93 +94,58 @@
                 </tr>
             </thead>
 
+<tbody>
 
-            <tbody>
+@foreach($tickets as $ticket)
 
-                <tr>
-                    <td>#TKT-1001</td>
-                    <td>Unable to connect to VPN</td>
-                    <td>Network</td>
+<tr>
 
-                    <td>
-                        <span class="badge priority-high">
-                            High
-                        </span>
-                    </td>
+    <td>{{ $ticket->ReferenceNumber }}</td>
 
-                    <td>
-                        <span class="badge status-open">
-                            Open
-                        </span>
-                    </td>
+    <td>{{ $ticket->Title }}</td>
 
-                    <td>Ahmad Hassan</td>
-                    <td>Jul 9, 2026</td>
+    <td>{{ $ticket->category->Name }}</td>
 
-                    <td>
-                        <a href="/tickets/1001" class="table-action">
-    View
-</a>
-                    </td>
-                </tr>
+    <td>
+        <span class="badge priority-{{ strtolower($ticket->priority->Name) }}">
+            {{ $ticket->priority->Name }}
+        </span>
+    </td>
 
+    <td>
+        <span class="badge
+            @if($ticket->status->Name == 'Open')
+                status-open
+            @elseif($ticket->status->Name == 'In Progress')
+                status-progress
+            @elseif($ticket->status->Name == 'Pending')
+                status-pending
+            @elseif($ticket->status->Name == 'Resolved')
+                status-resolved
+            @endif">
+            {{ $ticket->status->Name }}
+        </span>
+    </td>
 
-                <tr>
-                    <td>#TKT-1002</td>
-                    <td>Outlook not syncing</td>
-                    <td>Email</td>
+    <td>
+        {{ $ticket->creator->Name }}
+    </td>
 
-                    <td>
-                        <span class="badge priority-medium">
-                            Medium
-                        </span>
-                    </td>
+    <td>
+        {{ $ticket->CreatedAt->format('M j, Y') }}
+    </td>
 
-                    <td>
-                        <span class="badge status-progress">
-                            In Progress
-                        </span>
-                    </td>
+    <td>
+        <a href="#" class="table-action">
+            View
+        </a>
+    </td>
 
-                    <td>Sarah Ali</td>
-                    <td>Jul 8, 2026</td>
+</tr>
 
-                    <td>
-                       <a href="/tickets/1001" class="table-action">
-    View
-</a>
-                    </td>
-                </tr>
+@endforeach
 
-
-                <tr>
-                    <td>#TKT-1003</td>
-                    <td>Laptop screen issue</td>
-                    <td>Hardware</td>
-
-                    <td>
-                        <span class="badge priority-low">
-                            Low
-                        </span>
-                    </td>
-
-                    <td>
-                        <span class="badge status-pending">
-                            Pending
-                        </span>
-                    </td>
-
-                    <td>Unassigned</td>
-                    <td>Jul 7, 2026</td>
-
-                    <td>
-                        <a href="#" class="table-action">
-                            View
-                        </a>
-                    </td>
-                </tr>
-
-            </tbody>
+</tbody>
 
         </table>
 
