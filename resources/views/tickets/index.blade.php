@@ -3,7 +3,7 @@
 @section('title', 'Tickets | IT Help Desk')
 
 @section('page-css')
-    <link rel="stylesheet" href="{{ asset('css/tickets.css') }}">
+<link rel="stylesheet" href="{{ asset('css/tickets.css') }}">
 @endsection
 
 @section('page-title', 'Tickets')
@@ -12,54 +12,79 @@
 
 @section('tickets-active', 'active')
 
-
 @section('content')
 
-<div class="tickets-toolbar">
+<form method="GET">
 
-    <div class="ticket-search">
-        <input
-            type="text"
-            placeholder="Search tickets..."
-        >
+    <div class="tickets-toolbar">
+
+        <div class="ticket-search">
+            <input
+                type="text"
+                name="search"
+                placeholder="Search tickets..."
+                value="{{ request('search') }}">
+        </div>
+
+        <div class="ticket-filters">
+
+            <input
+                type="date"
+                name="from_date"
+                value="{{ request('from_date') }}">
+
+            <input
+                type="date"
+                name="to_date"
+                value="{{ request('to_date') }}">
+
+            <!-- Status Filter -->
+            <select name="status">
+                <option value="">All Statuses</option>
+
+                @foreach ($statuses as $status)
+                    <option
+                        value="{{ $status->Id }}"
+                        {{ request('status') == $status->Id ? 'selected' : '' }}>
+                        {{ $status->Name }}
+                    </option>
+                @endforeach
+            </select>
+
+            <!-- Priority Filter -->
+            <select name="priority">
+                <option value="">All Priorities</option>
+                   @foreach ($priorties as $priority)
+                    <option
+                        value="{{ $priority->Id }}"
+                        {{ request('priority') == $priority->Id ? 'selected' : '' }}>
+                        {{ $priority->Name }}
+                    </option>
+                @endforeach
+            </select>
+            </select>
+
+
+           <select name="category">
+                <option value="">All Categories</option>
+                 @foreach ($categories as $category)
+                    <option
+                        value="{{ $category->Id }}"
+                        {{ request('category') == $category->Id ? 'selected' : '' }}>
+                        {{ $category->Name }}
+                    </option>
+                @endforeach
+            </select>
+
+            <button type="submit" class="primary-button">
+                Filter
+            </button>
+
+        </div>
+
     </div>
 
-
-    <div class="ticket-filters">
-
-        <select>
-            <option>All Statuses</option>
-            <option>Open</option>
-            <option>In Progress</option>
-            <option>Pending</option>
-            <option>Resolved</option>
-            <option>Closed</option>
-        </select>
-
-
-        <select>
-            <option>All Priorities</option>
-            <option>Low</option>
-            <option>Medium</option>
-            <option>High</option>
-            <option>Critical</option>
-        </select>
-
-
-        <select>
-            <option>All Categories</option>
-            <option>Hardware</option>
-            <option>Software</option>
-            <option>Network</option>
-            <option>Email</option>
-            <option>Access Request</option>
-            <option>Other</option>
-        </select>
-
-    </div>
-
-</div>
-
+</form>
 
 <section class="panel tickets-panel">
 
@@ -75,7 +100,6 @@
         </a>
 
     </div>
-
 
     <div class="table-wrapper">
 
@@ -94,58 +118,56 @@
                 </tr>
             </thead>
 
-<tbody>
+            <tbody>
 
-@foreach($tickets as $ticket)
+            @foreach($tickets as $ticket)
 
-<tr>
+                <tr>
 
-    <td>{{ $ticket->ReferenceNumber }}</td>
+                    <td>{{ $ticket->ReferenceNumber }}</td>
 
-    <td>{{ $ticket->Title }}</td>
+                    <td>{{ $ticket->Title }}</td>
 
-    <td>{{ $ticket->category->Name }}</td>
+                    <td>{{ $ticket->category->Name }}</td>
 
-    <td>
-        <span class="badge priority-{{ strtolower($ticket->priority->Name) }}">
-            {{ $ticket->priority->Name }}
-        </span>
-    </td>
+                    <td>
+                        <span class="badge priority-{{ strtolower($ticket->priority->Name) }}">
+                            {{ $ticket->priority->Name }}
+                        </span>
+                    </td>
 
-    <td>
-        <span class="badge
-            @if($ticket->status->Name == 'Open')
-                status-open
-            @elseif($ticket->status->Name == 'In Progress')
-                status-progress
-            @elseif($ticket->status->Name == 'Pending')
-                status-pending
-            @elseif($ticket->status->Name == 'Resolved')
-                status-resolved
-            @endif">
-            {{ $ticket->status->Name }}
-        </span>
-    </td>
+                    <td>
+                        <span class="badge
+                            @if($ticket->status->Name == 'Open')
+                                status-open
+                            @elseif($ticket->status->Name == 'In Progress')
+                                status-progress
+                            @elseif($ticket->status->Name == 'Pending')
+                                status-pending
+                            @elseif($ticket->status->Name == 'Resolved')
+                                status-resolved
+                            @elseif($ticket->status->Name == 'Closed')
+                                status-closed
+                            @endif">
+                            {{ $ticket->status->Name }}
+                        </span>
+                    </td>
 
-    <td>
-        {{ $ticket->creator->Name }}
-    </td>
+                    <td>{{ $ticket->creator->Name }}</td>
 
-    <td>
-        {{ $ticket->CreatedAt->format('M j, Y') }}
-    </td>
+                    <td>{{ $ticket->CreatedAt->format('M j, Y') }}</td>
 
-    <td>
-        <a href="#" class="table-action">
-            View
-        </a>
-    </td>
+                    <td>
+                        <a href="#" class="table-action">
+                            View
+                        </a>
+                    </td>
 
-</tr>
+                </tr>
 
-@endforeach
+            @endforeach
 
-</tbody>
+            </tbody>
 
         </table>
 
