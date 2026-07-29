@@ -137,28 +137,38 @@
                     </td>
 
                     <td>
-                        <span class="badge
-                            @if($ticket->status->Name == 'Open')
-                                status-open
-                            @elseif($ticket->status->Name == 'In Progress')
-                                status-progress
-                            @elseif($ticket->status->Name == 'Pending')
-                                status-pending
-                            @elseif($ticket->status->Name == 'Resolved')
-                                status-resolved
-                            @elseif($ticket->status->Name == 'Closed')
-                                status-closed
-                            @endif">
-                            {{ $ticket->status->Name }}
-                        </span>
-                    </td>
+    <span class="badge
+        @if($ticket->status->Name == 'Open')
+            status-open
+        @elseif($ticket->status->Name == 'In Progress')
+            status-progress
+        @elseif($ticket->status->Name == 'Pending')
+            status-pending
+        @elseif($ticket->status->Name == 'Resolved')
+            status-resolved
+        @elseif($ticket->status->Name == 'Closed')
+            status-closed
+        @elseif($ticket->status->Name == 'Reopened')
+            status-reopened
+        @elseif($ticket->status->Name == 'Cancelled')
+            status-cancelled
+        @endif">
+        {{ $ticket->status->Name }}
+    </span>
+</td>
 
-                    <td>{{ $ticket->creator->Name }}</td>
+                   <td>
+    @if($ticket->currentAssignment)
+        {{ $ticket->currentAssignment->assignedTo->Name }}
+    @else
+        <b>Not Assigned</b>
+    @endif
+</td>
 
                     <td>{{ $ticket->CreatedAt->format('M j, Y') }}</td>
 
                     <td>
-                        <a href="#" class="table-action">
+                        <a href="{{ route('manager.ticket.show', $ticket->Id) }}"" class="table-action">
                             View
                         </a>
                     </td>

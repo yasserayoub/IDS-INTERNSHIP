@@ -3,10 +3,10 @@
 @section('title', 'Ticket Details | IT Help Desk')
 
 @section('page-css')
-    <link rel="stylesheet" href="{{ asset('css/ticket-details.css') }}">
+<link rel="stylesheet" href="{{ asset('css/ticket-details.css') }}">
 @endsection
 
-@section('page-title', 'Ticket #TKT-1001')
+@section('page-title', 'Ticket #'.$ticket->ReferenceNumber)
 
 @section(
     'page-description',
@@ -14,7 +14,6 @@
 )
 
 @section('tickets-active', 'active')
-
 
 @section('content')
 
@@ -27,14 +26,31 @@
             <div class="ticket-title-header">
 
                 <div>
-                    <h2>Unable to connect to VPN</h2>
+
+                    <h2>{{ $ticket->Title }}</h2>
+
                     <p>
-                        Submitted by Michael Brown on July 9, 2026
+                        Submitted by {{ $ticket->creator->Name }}
+                        on {{ $ticket->CreatedAt->format('F j, Y') }}
                     </p>
+
                 </div>
 
-                <span class="badge status-open">
-                    Open
+                <span class="badge
+                    @if($ticket->status->Name == 'Open')
+                        status-open
+                    @elseif($ticket->status->Name == 'In Progress')
+                        status-progress
+                    @elseif($ticket->status->Name == 'Pending')
+                        status-pending
+                    @elseif($ticket->status->Name == 'Resolved')
+                        status-resolved
+                    @elseif($ticket->status->Name == 'Closed')
+                        status-closed
+                    @endif">
+
+                    {{ $ticket->status->Name }}
+
                 </span>
 
             </div>
@@ -43,23 +59,58 @@
             <div class="ticket-meta-grid">
 
                 <div class="meta-item">
+
                     <span>Category</span>
-                    <strong>Network</strong>
+
+                    <strong>
+                        {{ $ticket->category->Name }}
+                    </strong>
+
                 </div>
 
+
                 <div class="meta-item">
+
                     <span>Priority</span>
-                    <strong class="priority-text-high">High</strong>
+
+                    <strong class="priority-text-{{ strtolower($ticket->priority->Name) }}">
+                        {{ $ticket->priority->Name }}
+                    </strong>
+
                 </div>
 
+
                 <div class="meta-item">
+
                     <span>Assigned Agent</span>
-                    <strong>Ahmad Hassan</strong>
+
+                    <strong>
+
+                        @if($ticket->AssignedAgentId)
+
+                            {{ optional($itSupports->firstWhere('Id', $ticket->AssignedAgentId))->Name }}
+
+                        @else
+
+                            Not Assigned
+
+                        @endif
+
+                    </strong>
+
                 </div>
 
+
                 <div class="meta-item">
+
                     <span>Created</span>
-                    <strong>Jul 9, 2026</strong>
+
+                    <strong>
+
+                        {{ $ticket->CreatedAt->format('M j, Y') }}
+
+                    </strong>
+
                 </div>
 
             </div>
@@ -70,14 +121,7 @@
                 <h3>Issue Description</h3>
 
                 <p>
-                    I am unable to connect to the company VPN from my laptop.
-                    The connection stops after entering my credentials and displays
-                    a connection timeout message.
-                </p>
-
-                <p>
-                    I restarted the laptop and internet router, but the problem
-                    still continues.
+                    {{ $ticket->Description }}
                 </p>
 
             </div>
@@ -88,8 +132,13 @@
                 <h3>Attachments</h3>
 
                 <div class="attachment-item">
+
                     <span>📎 vpn-error-screenshot.png</span>
-                    <a href="#">View</a>
+
+                    <a href="#">
+                        View
+                    </a>
+
                 </div>
 
             </div>
@@ -100,91 +149,80 @@
         <section class="details-card conversation-card">
 
             <div class="section-heading">
+
                 <h2>Conversation</h2>
-                <p>Ticket comments and support responses.</p>
-            </div>
 
-
-            <div class="comment">
-
-                <div class="comment-avatar">
-                    MB
-                </div>
-
-                <div class="comment-content">
-
-                    <div class="comment-header">
-                        <div>
-                            <strong>Michael Brown</strong>
-                            <span>Employee</span>
-                        </div>
-
-                        <time>10:15 AM</time>
-                    </div>
-
-                    <p>
-                        The VPN problem started this morning. Other websites and
-                        internet services are working normally.
-                    </p>
-
-                </div>
+                <p>
+                    Ticket comments and support responses.
+                </p>
 
             </div>
 
 
-            <div class="comment">
 
-                <div class="comment-avatar">
-                    AH
+            @forelse($ticket->comments as $comment)
+
+    <div class="comment">
+
+        <div class="comment-avatar">
+            {{ strtoupper(substr($comment->user->Name, 0, 2)) }}
+        </div>
+
+        <div class="comment-content">
+
+            <div class="comment-header">
+
+                <div>
+                    <strong>{{ $comment->user->Name }}</strong>
+                    <span>{{ $comment->user->role->Name }}</span>
                 </div>
 
-                <div class="comment-content">
-
-                    <div class="comment-header">
-                        <div>
-                            <strong>Ahmad Hassan</strong>
-                            <span>IT Support Agent</span>
-                        </div>
-
-                        <time>10:32 AM</time>
-                    </div>
-
-                    <p>
-                        Please confirm whether you recently changed your company
-                        password. I will also check the VPN account status.
-                    </p>
-
-                </div>
+                <time>{{ $comment->CreatedAt->format('M j, Y g:i A') }}</time>
 
             </div>
 
+            <p>{{ $comment->Content }}</p>
 
-            <div class="reply-box">
+        </div>
 
-                <label for="reply">
-                    Add Comment
-                </label>
+    </div>
 
-                <textarea
-                    id="reply"
-                    rows="5"
-                    placeholder="Write a comment or reply..."
-                ></textarea>
+@empty
 
-                <div class="reply-actions">
+    <p>No comments yet.</p>
 
-                    <label class="internal-note-option">
-                        <input type="checkbox">
-                        Internal note
-                    </label>
+@endforelse
 
-                    <button type="button">
-                        Add Comment
-                    </button>
+<form action="{{ route('manager.ticket.comment', $ticket->Id) }}" method="POST" class="reply-box">
 
-                </div>
+    @csrf
 
-            </div>
+    <label for="Content">
+        Add Comment
+    </label>
+
+    <textarea
+        name="Content"
+        id="Content"
+        rows="5"
+        placeholder="Write a comment or reply..."
+        required
+    ></textarea>
+
+    <div class="reply-actions">
+
+        <label class="internal-note-option">
+            <input type="checkbox" name="IsInternal" value="1">
+            Internal note
+        </label>
+
+        <button type="submit">
+            Add Comment
+        </button>
+
+    </div>
+
+</form>
 
         </section>
 
@@ -195,41 +233,87 @@
 
         <section class="side-card">
 
-            <h3>Ticket Workflow</h3>
+           <section class="side-card">
 
-            <div class="workflow-group">
+    <h3>Ticket Workflow</h3>
 
-                <label>Status</label>
+    <form action="{{ route('manager.ticket.assign', $ticket->Id) }}" method="POST">
 
-                <select>
-                    <option>Open</option>
-                    <option>In Progress</option>
-                    <option>Pending</option>
-                    <option>Resolved</option>
-                    <option>Closed</option>
-                </select>
-
-            </div>
+        @csrf
 
 
-            <div class="workflow-group">
+        <div class="workflow-group">
 
-                <label>Assigned Agent</label>
+            <label>Status</label>
 
-                <select>
-                    <option>Ahmad Hassan</option>
-                    <option>Sarah Ali</option>
-                    <option>Omar Khalil</option>
-                </select>
+            <select name="StatusId">
 
-            </div>
+    <option value="1" {{ $ticket->StatusId == 1 ? 'selected' : '' }}>
+        Open
+    </option>
 
+    <option value="2" {{ $ticket->StatusId == 2 ? 'selected' : '' }}>
+        In Progress
+    </option>
 
-            <button class="update-workflow-button">
-                Update Ticket
-            </button>
+    <option value="3" {{ $ticket->StatusId == 3 ? 'selected' : '' }}>
+        Resolved
+    </option>
 
-        </section>
+    <option value="4" {{ $ticket->StatusId == 4 ? 'selected' : '' }}>
+        Closed
+    </option>
+
+    <option value="5" {{ $ticket->StatusId == 5 ? 'selected' : '' }}>
+        Reopened
+    </option>
+
+    <option value="6" {{ $ticket->StatusId == 6 ? 'selected' : '' }}>
+        Cancelled
+    </option>
+
+    <option value="7" {{ $ticket->StatusId == 7 ? 'selected' : '' }}>
+        Pending
+    </option>
+
+</select>
+
+            </select>
+
+        </div>
+
+        <div class="workflow-group">
+
+            <label>Assigned Agent</label>
+
+            <select name="AssignedToUserId">
+
+                <option value="">Select IT Support</option>
+
+                @foreach($itSupports as $support)
+
+    <option
+        value="{{ $support->Id }}"
+         {{ optional($ticket->currentAssignment)->AssignedToUserId == $support->Id ? 'selected' : '' }}>   {{--roo7 ala table ticket assignment -> assigntouserid iza ken howe zeto mtl it agent support id 3malo select la n3rf hyde ticket la meen --}}
+
+        {{ $support->Name }}
+        ({{ $support->active_tickets_count }} Active Tickets)
+
+    </option>
+
+@endforeach
+
+            </select>
+
+        </div>
+
+        <button type="submit" class="update-workflow-button">
+            Update Ticket
+        </button>
+
+    </form>
+
+</section>
 
 
         <section class="side-card">
@@ -273,32 +357,20 @@
             <h3>Activity History</h3>
 
             <div class="history-item">
+
                 <span class="history-dot"></span>
 
                 <div>
+
                     <strong>Ticket created</strong>
-                    <p>Michael Brown · 10:05 AM</p>
+
+                    <p>
+                        {{ $ticket->creator->Name }} ·
+                        {{ $ticket->CreatedAt->format('g:i A') }}
+                    </p>
+
                 </div>
-            </div>
 
-
-            <div class="history-item">
-                <span class="history-dot"></span>
-
-                <div>
-                    <strong>Assigned to Ahmad Hassan</strong>
-                    <p>Administrator · 10:20 AM</p>
-                </div>
-            </div>
-
-
-            <div class="history-item">
-                <span class="history-dot"></span>
-
-                <div>
-                    <strong>Status changed to Open</strong>
-                    <p>Ahmad Hassan · 10:25 AM</p>
-                </div>
             </div>
 
         </section>

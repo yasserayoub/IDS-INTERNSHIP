@@ -34,35 +34,27 @@
                 Profile
             </a>
 
-            <!-- Administrator only -->
+            <!-- Administrator -->
             @if(Auth::check() && Auth::user()->role->Name == 'Administrator')
-
-                <a href="/users"
-                   class="@yield('users-active')">
-                    Users
-                </a>
 
                 <a href="{{ route('admin.dashboard') }}"
                    class="@yield('admin-dashboard-active')">
                     Admin Dashboard
                 </a>
 
-            @endif
-
-
-            <!-- Administrator + IT Support -->
-            @if(Auth::check() &&
-                (Auth::user()->role->Name == 'Administrator' ||
-                 Auth::user()->role->Name == 'IT Support'))
-
-                <a href="/dashboard"
-                   class="@yield('dashboard-active')">
-                    Dashboard
+                <a href="{{ route('UserManagementpage') }}"
+                   class="@yield('users-active')">
+                    Users
                 </a>
 
-                <a href="{{route('allticketspage')}}"
+                <a href="{{ route('allticketspage') }}"
                    class="@yield('tickets-active')">
                     Tickets
+                </a>
+
+                <a href="{{ route('activity.logs') }}"
+                   class="@yield('activity-active')">
+                    Activity Log
                 </a>
 
                 <a href="/notifications"
@@ -77,8 +69,57 @@
 
             @endif
 
+            <!-- IT Manager -->
+            @if(Auth::check() && Auth::user()->role->Name == 'IT Manager')
 
-            <!-- Employee only -->
+                <a href="/dashboard"
+                   class="@yield('dashboard-active')">
+                    Dashboard
+                </a>
+
+                <a href="{{ route('allticketspage') }}"
+                   class="@yield('tickets-active')">
+                    Tickets
+                </a>
+
+                <a href="{{ route('activity.logs') }}"
+   class="@yield('activity-active')">
+    Activity Log
+</a>
+
+                <a href="/notifications"
+                   class="@yield('notifications-active')">
+                    Notifications
+                </a>
+
+                <a href="/reports"
+                   class="@yield('reports-active')">
+                    Reports
+                </a>
+
+            @endif
+
+            <!-- IT Support -->
+            @if(Auth::check() && Auth::user()->role->Name == 'IT Support')
+
+                <a href="/dashboard"
+                   class="@yield('dashboard-active')">
+                    Dashboard
+                </a>
+
+                <a href="{{ route('support.tickets') }}"
+                   class="@yield('tickets-active')">
+                    My Assigned Tickets
+                </a>
+
+                <a href="/notifications"
+                   class="@yield('notifications-active')">
+                    Notifications
+                </a>
+
+            @endif
+
+            <!-- Employee -->
             @if(Auth::check() && Auth::user()->role->Name == 'Employee')
 
                 <a href="{{ route('CreateTicket') }}"
@@ -104,9 +145,11 @@
 
             <form action="{{ route('logout') }}" method="POST">
                 @csrf
+
                 <button type="submit" class="logout-button">
                     Logout
                 </button>
+
             </form>
 
         </div>
@@ -144,6 +187,10 @@
     </main>
 
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
+
+@yield('page-js')
 
 </body>
 </html>

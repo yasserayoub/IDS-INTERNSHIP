@@ -66,10 +66,10 @@ class User extends Authenticatable
     /**
      * A user can have many ticket assignments.
      */
-    public function ticketAssignments()
-    {
-        return $this->hasMany(TicketAssignment::class, 'UserId', 'Id');
-    }
+   public function ticketAssignments()
+{
+    return $this->hasMany(TicketAssignment::class, 'AssignedToUserId', 'Id');
+}
 
     /**
      * A user can write many ticket comments.

@@ -10,6 +10,7 @@ use Illuminate\Support\Facades\Validator;
 use App\Models\TicketAttachment;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\DB;
+use App\Services\ActivityLogger;
 
 
 
@@ -27,15 +28,21 @@ class EmployeeTicketController extends Controller
     return view('tickets.create', compact('categories', 'priorities'));
 }
 
-    public function show($id){  //view ticket details
+   public function show($id)
+{
+    $ticket = Ticket::with([
+        'category',
+        'priority',
+        'status',
+        'attachments',
+        'comments.user.role'
+    ])
+    ->where('Id', $id)
+    ->where('CreatedByUserId', Auth::user()->Id)
+    ->firstOrFail();
 
-        $ticket = Ticket::where('Id', $id)
-            ->where('CreatedByUserId', Auth::user()->Id)
-            ->firstOrFail();
-
-        return view('employee.ViewTicket', compact('ticket'));
-
-    }
+    return view('employee.ViewTicket', compact('ticket'));
+}
  public function store(Request $request)
 {
     $request->validate([
@@ -61,6 +68,7 @@ class EmployeeTicketController extends Controller
     $ticket->UpdatedAt = now();
 
     $ticket->save();
+    ActivityLogger::logTicketCreated($ticket->Id);
 
     if ($request->hasFile('attachments')) {
 
@@ -174,18 +182,33 @@ public function download($id)
         $attachment->OriginalFileName
     );
 }
-    public function destroy($id)
-    {
-        $ticket = Ticket::where('Id', $id)
-            ->where('CreatedByUserId', Auth::user()->Id)
-            ->firstOrFail();
+   public function destroy($id)
+{
+    $ticket = Ticket::where('Id', $id)
+        ->where('CreatedByUserId', Auth::user()->Id)
+        ->firstOrFail();
 
-        $ticket->delete();
-
+    // Only Open and Resolved tickets can be deleted
+    if (!in_array($ticket->status->Name, ['Open', 'Resolved'])) {
         return redirect()
-            ->route('employee.dashboard')
-            ->with('success', 'Ticket deleted successfully.');
+            ->back()
+            ->with('error', 'Only Open or Resolved tickets can be deleted.');
     }
+
+    // Delete related records
+    $ticket->attachments()->delete();
+    $ticket->comments()->delete();
+    $ticket->assignments()->delete();
+    $ticket->escalations()->delete();
+    $ticket->histories()->delete();
+
+    // Soft delete the ticket
+    $ticket->delete();
+
+    return redirect()
+        ->route('employee.dashboard')
+        ->with('success', 'Ticket deleted successfully.');
+}
     public function deleteAttachment($id)
 {
     $attachment = TicketAttachment::where('Id', $id)

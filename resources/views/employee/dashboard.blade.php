@@ -102,29 +102,34 @@
 
     <td>{{ $ticket->CreatedAt->format('M d, Y') }}</td>
 
-    <td class="action-buttons">
+   <td class="action-buttons">
 
-        <a href="{{ route('employee.tickets.show', $ticket->Id) }}" class="view-btn">
-            View
-        </a>
+    <a href="{{ route('employee.tickets.show', $ticket->Id) }}" class="view-btn">
+        View
+    </a>
 
-        <a href="{{ route('employee.tickets.edit', $ticket->Id) }}" class="edit-btn">
-            Edit
-        </a>
+  @if($ticket->status->Name == 'Open')
 
-        <form action="{{ route('employee.tickets.destroy', $ticket->Id) }}" method="POST" class="delete-form">
+    <a href="{{ route('employee.tickets.edit', $ticket->Id) }}" class="edit-btn">
+        Edit
+    </a>
 
-            @csrf
-            @method('DELETE')
+@endif
 
-            <button type="submit" class="delete-btn">
-                Delete
-            </button>
+@if(in_array($ticket->status->Name, ['Open', 'Resolved']))
 
-        </form>
+    <form action="{{ route('employee.tickets.destroy', $ticket->Id) }}" method="POST" class="delete-form">
 
-    </td>
+        @csrf
+        @method('DELETE')
 
+        <button type="submit" class="delete-btn">
+            Delete
+        </button>
+
+    </form>
+
+@endif
 </tr>
 
 @endforeach

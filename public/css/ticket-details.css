@@ -314,4 +314,62 @@
     .reply-actions button {
         width: 100%;
     }
+
+}
+/* ===========================
+   Ticket Status
+=========================== */
+
+.ticket-status{
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+    min-width:100px;
+    padding:6px 14px;
+    border-radius:999px;
+    font-size:13px;
+    font-weight:600;
+    line-height:1;
+}
+
+/* Open */
+.ticket-status.status-open{
+    background:#DBEAFE;
+    color:#1D4ED8;
+}
+
+/* In Progress */
+.ticket-status.status-progress{
+    background:#FEF3C7;
+    color:#B45309;
+}
+
+/* Pending */
+.ticket-status.status-pending{
+    background:#EDE9FE;
+    color:#7C3AED;
+}
+
+/* Resolved */
+.ticket-status.status-resolved{
+    background:#DCFCE7;
+    color:#15803D;
+}
+
+/* Closed */
+.ticket-status.status-closed{
+    background:#E5E7EB;
+    color:#374151;
+}
+
+/* Reopened */
+.ticket-status.status-reopened{
+    background:#FEF3C7;
+    color:#92400E;
+}
+
+/* Cancelled */
+.ticket-status.status-cancelled{
+    background:#FEE2E2;
+    color:#B91C1C;
 }

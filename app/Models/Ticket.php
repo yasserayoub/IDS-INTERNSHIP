@@ -113,4 +113,10 @@ class Ticket extends Model
     {
         return $this->hasMany(TicketHistory::class, 'TicketId', 'Id');
     }
+    public function currentAssignment()
+{
+    return $this->hasOne(TicketAssignment::class, 'TicketId', 'Id')
+                ->where('IsCurrent', true);
+}
+
 }

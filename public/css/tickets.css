@@ -324,3 +324,43 @@
 .ticket-filters input[type="date"]::-webkit-calendar-picker-indicator {
     cursor: pointer;
 }
+/* Status Badges */
+
+.badge.status-open{
+    background:#DBEAFE;
+    color:#1D4ED8;
+}
+
+.badge.status-progress{
+    background:#FEF3C7;
+    color:#B45309;
+}
+
+.badge.status-pending{
+    background:#EDE9FE;
+    color:#7C3AED;
+}
+
+.badge.status-resolved{
+    background:#DCFCE7;
+    color:#15803D;
+}
+
+.badge.status-closed{
+    background:#E5E7EB;
+    color:#374151;
+}
+
+.badge.status-reopened{
+    background:#FEF3C7;
+    color:#92400E;
+}
+
+.badge.status-cancelled{
+    background:#FEE2E2;
+    color:#B91C1C;
+}
+.priority-critical {
+    background: #FEE2E2;
+    color: #B91C1C;
+}

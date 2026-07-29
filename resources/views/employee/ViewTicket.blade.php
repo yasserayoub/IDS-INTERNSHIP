@@ -118,6 +118,78 @@
 </ul>
 
     </div>
+    <div class="ticket-section">
+
+    <h3>Conversation</h3>
+
+    @forelse($ticket->comments as $comment)
+
+        @if(!$comment->IsInternal)
+
+            <div class="comment">
+
+                <div class="comment-avatar">
+                    {{ strtoupper(substr($comment->user->Name, 0, 2)) }}
+                </div>
+
+                <div class="comment-content">
+
+                    <div class="comment-header">
+
+                        <div>
+
+                            <strong>{{ $comment->user->Name }}</strong>
+
+                            <span>{{ $comment->user->role->Name }}</span>
+
+                        </div>
+
+                        <time>
+                            {{ $comment->CreatedAt->format('M j, Y g:i A') }}
+                        </time>
+
+                    </div>
+
+                    <p>{{ $comment->Content }}</p>
+
+                </div>
+
+            </div>
+
+        @endif
+
+    @empty
+
+        <p>No comments yet.</p>
+
+    @endforelse
+
+</div>
+
+<form action="{{ route('employee.ticket.comment', $ticket->Id) }}" method="POST" class="reply-box">
+
+    @csrf
+
+    <label for="Content">
+        Add Comment
+    </label>
+
+    <textarea
+        name="Content"
+        id="Content"
+        rows="5"
+        placeholder="Write your reply..."
+        required></textarea>
+
+    <div class="reply-actions">
+
+        <button type="submit">
+            Send Reply
+        </button>
+
+    </div>
+
+</form>
 
 
     <div class="ticket-actions">
@@ -126,9 +198,16 @@
             Back
         </a>
 
+
+    @if($ticket->status->Name == 'Open')
+
         <a href="{{ route('employee.tickets.edit', ['id' => $ticket->Id]) }}" class="btn-warning">
             Edit
         </a>
+
+    @endif
+
+    @if(in_array($ticket->status->Name, ['Open', 'Resolved']))
 
         <form action="{{ route('employee.tickets.destroy', ['id' => $ticket->Id]) }}" method="POST">
 
@@ -141,7 +220,10 @@
 
         </form>
 
-    </div>
+    @endif
+
+
+</div>
 
 </div>
 

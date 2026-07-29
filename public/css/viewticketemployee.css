@@ -253,3 +253,127 @@
         font-weight:600;
         transition:.3s;
 }
+/* ===========================
+   Conversation Section
+=========================== */
+
+.comment {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    margin-bottom: 12px;
+    padding: 12px 16px;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.comment-avatar {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #2563eb;
+    color: #fff;
+    font-weight: 600;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    text-transform: uppercase;
+}
+
+.comment-content {
+    flex: 1;
+}
+
+.comment-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    gap: 10px;
+    margin-bottom: 4px;
+}
+
+.comment-header strong {
+    display: block;
+    color: #111827;
+    font-size: 15px;
+    margin-bottom: 2px;
+}
+
+.comment-header span {
+    color: #6b7280;
+    font-size: 13px;
+}
+
+.comment-header time {
+    color: #9ca3af;
+    font-size: 11px;
+    white-space: nowrap;
+}
+
+.comment-content p {
+    margin: 4px 0 0;
+    color: #374151;
+    line-height: 1.4;
+}
+
+/* ===========================
+   Reply Box
+=========================== */
+
+.reply-box {
+    margin-top: 20px;
+    background: #fff;
+    border: 1px solid #e5e7eb;
+    border-radius: 8px;
+    padding: 16px;
+}
+
+.reply-box label {
+    display: block;
+    font-weight: 600;
+    margin-bottom: 8px;
+    color: #111827;
+}
+
+.reply-box textarea {
+    width: 100%;
+    min-height: 120px;
+    resize: vertical;
+    border: 1px solid #d1d5db;
+    border-radius: 8px;
+    padding: 12px;
+    font-size: 14px;
+    font-family: inherit;
+    outline: none;
+    transition: border-color .2s ease;
+    box-sizing: border-box;
+}
+
+.reply-box textarea:focus {
+    border-color: #2563eb;
+}
+
+.reply-actions {
+    margin-top: 12px;
+    display: flex;
+    justify-content: flex-end;
+}
+
+.reply-actions button {
+    background: #2563eb;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 20px;
+    font-size: 14px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background .2s ease;
+}
+
+.reply-actions button:hover {
+    background: #1d4ed8;
+}
