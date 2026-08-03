@@ -118,5 +118,121 @@ class Ticket extends Model
     return $this->hasOne(TicketAssignment::class, 'TicketId', 'Id')
                 ->where('IsCurrent', true);
 }
+public function getWorkTimeByAgent()
+{
+    // Get all assignment periods for this ticket
+    $assignments = $this->assignments()
+        ->with('assignedTo')
+        ->orderBy('AssignedAt', 'asc')
+        ->get();
 
+    // Get all status changes
+    $statusHistories = $this->histories()
+        ->where('FieldName', 'Status')
+        ->orderBy('ChangedAt', 'asc')
+        ->get();
+
+    $agentWorkTimes = [];
+
+    foreach ($assignments as $assignment) {
+
+        $assignmentStart = $assignment->AssignedAt;
+
+        // Current assignment ends "now"
+        $assignmentEnd = $assignment->UnassignedAt ?? now();
+
+        $totalMinutes = 0;
+
+        $workStartedAt = null;
+
+
+        // ============================================
+        // FIND IN-PROGRESS PERIODS
+        // ============================================
+
+        foreach ($statusHistories as $history) {
+
+            // Agent/ticket entered In Progress
+            if ($history->NewValue === 'In Progress') {
+
+                $workStartedAt = $history->ChangedAt;
+            }
+
+
+            // Ticket left In Progress
+            elseif (
+                $history->OldValue === 'In Progress'
+                && $workStartedAt !== null
+            ) {
+
+                $workEndedAt = $history->ChangedAt;
+
+
+                // ====================================
+                // CALCULATE OVERLAP WITH ASSIGNMENT
+                // ====================================
+
+                $start = $workStartedAt->greaterThan($assignmentStart)
+                    ? $workStartedAt
+                    : $assignmentStart;
+
+                $end = $workEndedAt->lessThan($assignmentEnd)
+                    ? $workEndedAt
+                    : $assignmentEnd;
+
+
+                if ($start->lessThan($end)) {
+
+                    $totalMinutes += $start->diffInMinutes($end);
+                }
+
+
+                $workStartedAt = null;
+            }
+        }
+
+
+        // ============================================
+        // TICKET IS STILL IN PROGRESS
+        // ============================================
+
+        if ($workStartedAt !== null) {
+
+            $start = $workStartedAt->greaterThan($assignmentStart)
+                ? $workStartedAt
+                : $assignmentStart;
+
+            $end = $assignmentEnd;
+
+
+            if ($start->lessThan($end)) {
+
+                $totalMinutes += $start->diffInMinutes($end);
+            }
+        }
+
+
+        // ============================================
+        // SAVE RESULT FOR THIS AGENT
+        // ============================================
+
+        $agentId = $assignment->AssignedToUserId;
+
+
+        // Same agent may have been assigned more than once
+        if (!isset($agentWorkTimes[$agentId])) {
+
+            $agentWorkTimes[$agentId] = [
+                'agent' => $assignment->assignedTo,
+                'minutes' => 0,
+            ];
+        }
+
+
+        $agentWorkTimes[$agentId]['minutes'] += $totalMinutes;
+    }
+
+
+    return $agentWorkTimes;
+}
 }

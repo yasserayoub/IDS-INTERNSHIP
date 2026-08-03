@@ -64,6 +64,12 @@ Route::get('/manager/tickets', [AdminItManager::class, 'AllTickets'])
    Route::get('/activity-logs', [AdminItManager::class, 'ActivityLogs'])
     ->name('activity.logs');
 
+    //ticket histories
+    Route::get('/ticket-histories', [AdminItManager::class, 'TicketHistories'])
+    ->name('ticket.histories');
+    Route::get('/ticket-histories/{id}', [AdminItManager::class, 'ShowTicketHistory'])
+    ->name('ticket.history.show');
+
 
  //it agent
 Route::get('/support/tickets', [ItSupportController::class, 'MyTickets'])
@@ -80,6 +86,8 @@ Route::get('/support/tickets/{id}', [ItSupportController::class, 'ViewTicketDeta
 
     Route::post('/support/tickets/{id}/comments', [ItSupportController::class, 'storeComment'])
     ->name('support.ticket.comment');
+
+
 
 
 

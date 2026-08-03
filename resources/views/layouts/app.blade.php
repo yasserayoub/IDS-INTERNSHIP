@@ -34,7 +34,11 @@
                 Profile
             </a>
 
-            <!-- Administrator -->
+
+            <!-- ========================================= -->
+            <!-- ADMINISTRATOR -->
+            <!-- ========================================= -->
+
             @if(Auth::check() && Auth::user()->role->Name == 'Administrator')
 
                 <a href="{{ route('admin.dashboard') }}"
@@ -57,6 +61,12 @@
                     Activity Log
                 </a>
 
+                <!-- Ticket Histories -->
+                <a href="{{ route('ticket.histories') }}"
+                   class="@yield('history-active')">
+                    Ticket Histories
+                </a>
+
                 <a href="/notifications"
                    class="@yield('notifications-active')">
                     Notifications
@@ -69,7 +79,11 @@
 
             @endif
 
-            <!-- IT Manager -->
+
+            <!-- ========================================= -->
+            <!-- IT MANAGER -->
+            <!-- ========================================= -->
+
             @if(Auth::check() && Auth::user()->role->Name == 'IT Manager')
 
                 <a href="/dashboard"
@@ -83,9 +97,15 @@
                 </a>
 
                 <a href="{{ route('activity.logs') }}"
-   class="@yield('activity-active')">
-    Activity Log
-</a>
+                   class="@yield('activity-active')">
+                    Activity Log
+                </a>
+
+                <!-- Ticket Histories -->
+                <a href="{{ route('ticket.histories') }}"
+                   class="@yield('history-active')">
+                    Ticket Histories
+                </a>
 
                 <a href="/notifications"
                    class="@yield('notifications-active')">
@@ -99,7 +119,11 @@
 
             @endif
 
-            <!-- IT Support -->
+
+            <!-- ========================================= -->
+            <!-- IT SUPPORT -->
+            <!-- ========================================= -->
+
             @if(Auth::check() && Auth::user()->role->Name == 'IT Support')
 
                 <a href="/dashboard"
@@ -119,7 +143,11 @@
 
             @endif
 
-            <!-- Employee -->
+
+            <!-- ========================================= -->
+            <!-- EMPLOYEE -->
+            <!-- ========================================= -->
+
             @if(Auth::check() && Auth::user()->role->Name == 'Employee')
 
                 <a href="{{ route('CreateTicket') }}"
@@ -141,9 +169,15 @@
 
         </nav>
 
+
+        <!-- ========================================= -->
+        <!-- LOGOUT -->
+        <!-- ========================================= -->
+
         <div class="sidebar-bottom">
 
             <form action="{{ route('logout') }}" method="POST">
+
                 @csrf
 
                 <button type="submit" class="logout-button">
@@ -156,27 +190,48 @@
 
     </aside>
 
+
+    <!-- ========================================= -->
+    <!-- MAIN CONTENT -->
+    <!-- ========================================= -->
+
     <main class="dashboard-main">
 
         <header class="topbar">
 
             <div>
-                <h1>@yield('page-title')</h1>
-                <p>@yield('page-description')</p>
+
+                <h1>
+                    @yield('page-title')
+                </h1>
+
+                <p>
+                    @yield('page-description')
+                </p>
+
             </div>
+
 
             <div class="topbar-user">
 
                 <span>🔔</span>
 
                 <div>
-                    <strong>{{ Auth::user()->Name }}</strong>
-                    <p>{{ Auth::user()->role->Name }}</p>
+
+                    <strong>
+                        {{ Auth::user()->Name }}
+                    </strong>
+
+                    <p>
+                        {{ Auth::user()->role->Name }}
+                    </p>
+
                 </div>
 
             </div>
 
         </header>
+
 
         <section class="dashboard-content">
 
@@ -187,6 +242,7 @@
     </main>
 
 </div>
+
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.7/dist/js/bootstrap.bundle.min.js"></script>
 
