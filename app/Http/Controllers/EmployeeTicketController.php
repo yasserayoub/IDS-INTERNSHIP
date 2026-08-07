@@ -1,6 +1,8 @@
 <?php
 
 namespace App\Http\Controllers;
+use App\Services\NotificationService;
+use App\Models\User;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -17,9 +19,6 @@ use App\Services\TicketHistoryLogger;
 
 class EmployeeTicketController extends Controller
 {
-    // =========================================================
-    // CREATE TICKET PAGE
-    // =========================================================
 
     public function create()
     {
@@ -57,9 +56,7 @@ class EmployeeTicketController extends Controller
     }
 
 
-    // =========================================================
-    // CREATE NEW TICKET
-    // =========================================================
+   
 
     public function store(Request $request)
     {
@@ -117,9 +114,7 @@ class EmployeeTicketController extends Controller
         );
 
 
-        // -----------------------------------------------------
-        // TICKET HISTORY - TICKET CREATED
-        // -----------------------------------------------------
+
 
         TicketHistoryLogger::log(
             $ticket->Id,
@@ -128,10 +123,59 @@ class EmployeeTicketController extends Controller
             'Ticket Created'
         );
 
+        //send notifications
 
-        // -----------------------------------------------------
-        // SAVE ATTACHMENTS
-        // -----------------------------------------------------
+// Notify all Administrators
+$administrators = User::whereHas('role', function ($query) {
+    $query->where('Name', 'Administrator');
+})->get();
+
+foreach ($administrators as $admin) {
+
+    NotificationService::send(
+
+        $admin->Id,
+
+        $ticket->Id,
+
+        'ticket_created',
+
+        'New Ticket Created',
+
+        Auth::user()->Name .
+        ' created ticket ' .
+        $ticket->ReferenceNumber
+
+    );
+}
+
+
+// Notify all IT Managers
+$managers = User::whereHas('role', function ($query) {
+    $query->where('Name', 'IT Manager');
+})->get();
+
+foreach ($managers as $manager) {
+
+    NotificationService::send(
+
+        $manager->Id,
+
+        $ticket->Id,
+
+        'ticket_created',
+
+        'New Ticket Created',
+
+        Auth::user()->Name .
+        ' created ticket ' .
+        $ticket->ReferenceNumber
+
+    );
+}
+
+
+
 
         if ($request->hasFile('attachments')) {
 
@@ -187,9 +231,7 @@ class EmployeeTicketController extends Controller
                 $attachment->save();
 
 
-                // ---------------------------------------------
-                // HISTORY - ATTACHMENT ADDED
-                // ---------------------------------------------
+
 
                 TicketHistoryLogger::log(
                     $ticket->Id,
@@ -210,9 +252,7 @@ class EmployeeTicketController extends Controller
     }
 
 
-    // =========================================================
-    // EDIT TICKET PAGE
-    // =========================================================
+
 
     public function edit($id)
     {
@@ -242,15 +282,11 @@ class EmployeeTicketController extends Controller
     }
 
 
-    // =========================================================
-    // UPDATE TICKET
-    // =========================================================
+
 
     public function update(Request $request, $id)
     {
-        // -----------------------------------------------------
-        // GET CURRENT TICKET
-        // -----------------------------------------------------
+
 
         $ticket = Ticket::with([
             'category',
@@ -264,9 +300,6 @@ class EmployeeTicketController extends Controller
         ->firstOrFail();
 
 
-        // -----------------------------------------------------
-        // VALIDATE
-        // -----------------------------------------------------
 
         $request->validate([
 
@@ -288,9 +321,7 @@ class EmployeeTicketController extends Controller
         ]);
 
 
-        // =====================================================
-        // SAVE OLD VALUES
-        // =====================================================
+
 
         $oldTitle =
             $ticket->Title;
@@ -311,9 +342,6 @@ class EmployeeTicketController extends Controller
             $ticket->priority->Name;
 
 
-        // =====================================================
-        // GET NEW CATEGORY / PRIORITY
-        // =====================================================
 
         $newCategory =
             TicketCategory::findOrFail(
@@ -326,9 +354,7 @@ class EmployeeTicketController extends Controller
             );
 
 
-        // =====================================================
-        // UPDATE TICKET
-        // =====================================================
+
 
         $ticket->Title =
             $request->Title;
@@ -348,9 +374,6 @@ class EmployeeTicketController extends Controller
         $ticket->save();
 
 
-        // =====================================================
-        // HISTORY - TITLE
-        // =====================================================
 
         if ($oldTitle != $request->Title) {
 
@@ -363,9 +386,7 @@ class EmployeeTicketController extends Controller
         }
 
 
-        // =====================================================
-        // HISTORY - CATEGORY
-        // =====================================================
+
 
         if (
             $oldCategoryId
@@ -382,9 +403,7 @@ class EmployeeTicketController extends Controller
         }
 
 
-        // =====================================================
-        // HISTORY - PRIORITY
-        // =====================================================
+
 
         if (
             $oldPriorityId
@@ -401,9 +420,7 @@ class EmployeeTicketController extends Controller
         }
 
 
-        // =====================================================
-        // HISTORY - DESCRIPTION
-        // =====================================================
+
 
         if (
             $oldDescription
@@ -539,9 +556,7 @@ class EmployeeTicketController extends Controller
     }
 
 
-    // =========================================================
-    // DELETE TICKET
-    // =========================================================
+
 
     public function destroy($id)
     {
@@ -576,9 +591,7 @@ class EmployeeTicketController extends Controller
         }
 
 
-        // -----------------------------------------------------
-        // DELETE RELATED RECORDS
-        // -----------------------------------------------------
+
 
         $ticket->attachments()->delete();
 
@@ -589,22 +602,6 @@ class EmployeeTicketController extends Controller
         $ticket->escalations()->delete();
 
 
-        /*
-         * IMPORTANT:
-         *
-         * We are NOT deleting TicketHistories here anymore.
-         *
-         * Previously you had:
-         *
-         * $ticket->histories()->delete();
-         *
-         * That would destroy the audit/history information.
-         */
-
-
-        // -----------------------------------------------------
-        // SOFT DELETE TICKET
-        // -----------------------------------------------------
 
         $ticket->delete();
 
@@ -617,10 +614,6 @@ class EmployeeTicketController extends Controller
             );
     }
 
-
-    // =========================================================
-    // DELETE ATTACHMENT
-    // =========================================================
 
     public function deleteAttachment($id)
     {
@@ -643,27 +636,16 @@ class EmployeeTicketController extends Controller
         $fileName =
             $attachment->OriginalFileName;
 
-
-        // -----------------------------------------------------
-        // DELETE FILE FROM STORAGE
-        // -----------------------------------------------------
-
         Storage::disk('public')
             ->delete(
                 $attachment->FilePath
             );
 
 
-        // -----------------------------------------------------
-        // DELETE DATABASE RECORD
-        // -----------------------------------------------------
-
         $attachment->delete();
 
 
-        // -----------------------------------------------------
-        // HISTORY - ATTACHMENT DELETED
-        // -----------------------------------------------------
+
 
         TicketHistoryLogger::log(
             $ticketId,

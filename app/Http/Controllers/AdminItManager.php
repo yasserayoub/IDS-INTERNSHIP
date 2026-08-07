@@ -17,12 +17,11 @@ use Illuminate\Support\Facades\DB;
 
 use App\Services\ActivityLogger;
 use App\Services\TicketHistoryLogger;
+use App\Services\NotificationService;
 
 class AdminItManager extends Controller
 {
-    // =========================================================
-    // ALL TICKETS
-    // =========================================================
+
 
     public function AllTickets(Request $request)
     {
@@ -102,9 +101,6 @@ class AdminItManager extends Controller
     }
 
 
-    // =========================================================
-    // SHOW ONE TICKET
-    // =========================================================
 
     public function ShowTicket($id)
     {
@@ -150,9 +146,7 @@ class AdminItManager extends Controller
     }
 
 
-    // =========================================================
-    // ASSIGN / REASSIGN TICKET
-    // =========================================================
+
 
     public function AssignTicket(Request $request, $id)
     {
@@ -282,6 +276,8 @@ class AdminItManager extends Controller
                 $newUser->Name
             );
 
+
+
         } else {
 
             // First assignment
@@ -291,6 +287,13 @@ class AdminItManager extends Controller
             );
 
         }
+         NotificationService::send(
+    $newUser->Id,
+    $id,
+    'ticket_assigned',
+    'Ticket Assigned',
+    'You have been assigned ticket ' . Ticket::find($id)->ReferenceNumber . '.'
+         );
 
 
         return redirect()

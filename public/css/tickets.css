@@ -364,3 +364,67 @@
     background: #FEE2E2;
     color: #B91C1C;
 }
+/* ==========================================
+   ACTION BUTTONS
+========================================== */
+
+.action-buttons{
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+
+/* Base Button */
+
+.btn-action{
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    min-width: 80px;
+
+    padding: 8px 14px;
+
+    border-radius: 8px;
+
+    font-size: 13px;
+    font-weight: 600;
+
+    text-decoration: none;
+
+    transition: all .25s ease;
+}
+
+/* View Button */
+
+.btn-view{
+    background: #2563eb;
+    color: #fff;
+}
+
+.btn-view:hover{
+    background: #1d4ed8;
+    color: #fff;
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 6px 16px rgba(37,99,235,.25);
+}
+
+/* History Button */
+
+.btn-history{
+    background: #f3f4f6;
+    color: #374151;
+
+    border: 1px solid #d1d5db;
+}
+
+.btn-history:hover{
+    background: #374151;
+    color: #fff;
+
+    transform: translateY(-2px);
+
+    box-shadow: 0 6px 16px rgba(0,0,0,.15);
+}

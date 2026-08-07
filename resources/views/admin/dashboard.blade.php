@@ -18,74 +18,140 @@
 
 @section('content')
 
+{{-- ========================================================= --}}
+{{-- KPI CARDS --}}
+{{-- ========================================================= --}}
+
 <div class="admin-stats">
 
+    {{-- TOTAL TICKETS --}}
     <div class="admin-stat-card">
+
         <div>
+
             <span>Total Tickets</span>
-            <h2>128</h2>
-            <p>All support requests</p>
+
+            <h2>
+                {{ $totalTickets }}
+            </h2>
+
+            <p>
+                All support requests
+            </p>
+
         </div>
 
         <div class="stat-icon">
             🎫
         </div>
+
     </div>
 
 
+    {{-- OPEN TICKETS --}}
     <div class="admin-stat-card">
+
         <div>
+
             <span>Open Tickets</span>
-            <h2>24</h2>
-            <p>Waiting for resolution</p>
+
+            <h2>
+                {{ $openTickets }}
+            </h2>
+
+            <p>
+                Waiting for resolution
+            </p>
+
         </div>
 
         <div class="stat-icon">
             📂
         </div>
+
     </div>
 
 
+    {{-- UNASSIGNED TICKETS --}}
     <div class="admin-stat-card warning-card">
+
         <div>
+
             <span>Unassigned</span>
-            <h2>7</h2>
-            <p>Require agent assignment</p>
+
+            <h2>
+                {{ $unassignedTickets }}
+            </h2>
+
+            <p>
+                Require agent assignment
+            </p>
+
         </div>
 
         <div class="stat-icon">
             👤
         </div>
+
     </div>
 
 
+    {{-- CRITICAL TICKETS --}}
     <div class="admin-stat-card critical-card">
+
         <div>
+
             <span>Critical Tickets</span>
-            <h2>4</h2>
-            <p>Require immediate attention</p>
+
+            <h2>
+                {{ $criticalTickets }}
+            </h2>
+
+            <p>
+                Require immediate attention
+            </p>
+
         </div>
 
         <div class="stat-icon">
             ⚠️
         </div>
+
     </div>
 
 </div>
 
 
+
+{{-- ========================================================= --}}
+{{-- DASHBOARD GRID --}}
+{{-- ========================================================= --}}
+
 <div class="admin-dashboard-grid">
+
+
+    {{-- ===================================================== --}}
+    {{-- RECENT TICKETS --}}
+    {{-- ===================================================== --}}
 
     <section class="admin-card recent-tickets-card">
 
         <div class="admin-card-header">
 
             <div>
-                <h2>Recent Tickets</h2>
-                <p>Latest support requests submitted by employees.</p>
+
+                <h2>
+                    Recent Tickets
+                </h2>
+
+                <p>
+                    Latest support requests submitted by employees.
+                </p>
+
             </div>
 
-            <a href="/tickets">
+
+            <a href="{{ route('allticketspage') }}">
                 View All
             </a>
 
@@ -97,104 +163,151 @@
             <table class="admin-table">
 
                 <thead>
+
                     <tr>
-                        <th>Ticket</th>
-                        <th>Title</th>
-                        <th>Priority</th>
-                        <th>Status</th>
-                        <th>Assigned To</th>
+
+                        <th>
+                            Ticket
+                        </th>
+
+                        <th>
+                            Title
+                        </th>
+
+                        <th>
+                            Priority
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Assigned To
+                        </th>
+
                     </tr>
+
                 </thead>
 
 
                 <tbody>
 
-                    <tr>
-                        <td>#TKT-1012</td>
+                    @forelse($recentTickets as $ticket)
 
-                        <td>Printer not responding</td>
+                        <tr>
 
-                        <td>
-                            <span class="admin-badge priority-medium">
-                                Medium
-                            </span>
-                        </td>
+                            {{-- REFERENCE NUMBER --}}
+                            <td>
 
-                        <td>
-                            <span class="admin-badge status-open">
-                                Open
-                            </span>
-                        </td>
+                                <strong>
+                                    {{ $ticket->ReferenceNumber }}
+                                </strong>
 
-                        <td>
-                            <span class="unassigned-text">
-                                Unassigned
-                            </span>
-                        </td>
-                    </tr>
+                            </td>
 
 
-                    <tr>
-                        <td>#TKT-1011</td>
+                            {{-- TITLE --}}
+                            <td>
 
-                        <td>Main server unavailable</td>
+                                {{ $ticket->Title }}
 
-                        <td>
-                            <span class="admin-badge priority-critical">
-                                Critical
-                            </span>
-                        </td>
-
-                        <td>
-                            <span class="admin-badge status-progress">
-                                In Progress
-                            </span>
-                        </td>
-
-                        <td>Ahmad Hassan</td>
-                    </tr>
+                            </td>
 
 
-                    <tr>
-                        <td>#TKT-1010</td>
+                            {{-- PRIORITY --}}
+                            <td>
 
-                        <td>Outlook not syncing</td>
+                                @php
 
-                        <td>
-                            <span class="admin-badge priority-high">
-                                High
-                            </span>
-                        </td>
+                                    $priorityName =
+                                        strtolower(
+                                            $ticket->priority->Name ?? ''
+                                        );
 
-                        <td>
-                            <span class="admin-badge status-pending">
-                                Pending
-                            </span>
-                        </td>
-
-                        <td>Sarah Ali</td>
-                    </tr>
+                                @endphp
 
 
-                    <tr>
-                        <td>#TKT-1009</td>
+                                <span class="
+                                    admin-badge
+                                    priority-{{ $priorityName }}
+                                ">
 
-                        <td>Software installation request</td>
+                                    {{ $ticket->priority->Name ?? 'Unknown' }}
 
-                        <td>
-                            <span class="admin-badge priority-low">
-                                Low
-                            </span>
-                        </td>
+                                </span>
 
-                        <td>
-                            <span class="admin-badge status-open">
-                                Open
-                            </span>
-                        </td>
+                            </td>
 
-                        <td>Omar Khalil</td>
-                    </tr>
+
+                            {{-- STATUS --}}
+                            <td>
+
+                                @php
+
+                                    $statusName =
+                                        $ticket->status->Name ?? 'Unknown';
+
+                                    $statusClass =
+                                        strtolower(
+                                            str_replace(
+                                                ' ',
+                                                '-',
+                                                $statusName
+                                            )
+                                        );
+
+                                @endphp
+
+
+                                <span class="
+                                    admin-badge
+                                    status-{{ $statusClass }}
+                                ">
+
+                                    {{ $statusName }}
+
+                                </span>
+
+                            </td>
+
+
+                            {{-- ASSIGNED AGENT --}}
+                            <td>
+
+                                @if(
+                                    $ticket->currentAssignment &&
+                                    $ticket->currentAssignment->assignedTo
+                                )
+
+                                    {{ $ticket->currentAssignment->assignedTo->Name }}
+
+                                @else
+
+                                    <span class="unassigned-text">
+                                        Unassigned
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+                        </tr>
+
+
+                    @empty
+
+                        <tr>
+
+                            <td colspan="5" class="text-center">
+
+                                No tickets found.
+
+                            </td>
+
+                        </tr>
+
+                    @endforelse
 
                 </tbody>
 
@@ -205,13 +318,25 @@
     </section>
 
 
+
+    {{-- ===================================================== --}}
+    {{-- QUICK ACTIONS --}}
+    {{-- ===================================================== --}}
+
     <section class="admin-card quick-actions-card">
 
         <div class="admin-card-header">
 
             <div>
-                <h2>Quick Actions</h2>
-                <p>Common administration tasks.</p>
+
+                <h2>
+                    Quick Actions
+                </h2>
+
+                <p>
+                    Common administration tasks.
+                </p>
+
             </div>
 
         </div>
@@ -219,43 +344,104 @@
 
         <div class="quick-actions">
 
-            <a href="/tickets" class="quick-action">
-                <span>🎫</span>
+
+            {{-- MANAGE TICKETS --}}
+            <a
+                href="{{ route('allticketspage') }}"
+                class="quick-action"
+            >
+
+                <span>
+                    🎫
+                </span>
 
                 <div>
-                    <strong>Manage Tickets</strong>
-                    <p>Assign and monitor support tickets.</p>
+
+                    <strong>
+                        Manage Tickets
+                    </strong>
+
+                    <p>
+                        Assign and monitor support tickets.
+                    </p>
+
                 </div>
+
             </a>
 
 
-           <a href="{{route('UserManagementpage')}}" class="quick-action">
-                <span>👥</span>
+            {{-- MANAGE USERS --}}
+            <a
+                href="{{ route('UserManagementpage') }}"
+                class="quick-action"
+            >
+
+                <span>
+                    👥
+                </span>
 
                 <div>
-                    <strong>Manage Users</strong>
-                    <p>View users and manage roles.</p>
+
+                    <strong>
+                        Manage Users
+                    </strong>
+
+                    <p>
+                        View users and manage roles.
+                    </p>
+
                 </div>
+
             </a>
 
 
-            <a href="/reports" class="quick-action">
-                <span>📊</span>
+            {{-- REPORTS --}}
+            <a
+                href="/reports"
+                class="quick-action"
+            >
+
+                <span>
+                    📊
+                </span>
 
                 <div>
-                    <strong>View Reports</strong>
-                    <p>Review support performance.</p>
+
+                    <strong>
+                        View Reports
+                    </strong>
+
+                    <p>
+                        Review support performance.
+                    </p>
+
                 </div>
+
             </a>
 
 
-            <a href="#" class="quick-action">
-                <span>⚙️</span>
+            {{-- ACTIVITY LOG --}}
+            <a
+                href="{{ route('activity.logs') }}"
+                class="quick-action"
+            >
+
+                <span>
+                    📋
+                </span>
 
                 <div>
-                    <strong>System Settings</strong>
-                    <p>Configure help desk settings.</p>
+
+                    <strong>
+                        Activity Log
+                    </strong>
+
+                    <p>
+                        Review recent system activity.
+                    </p>
+
                 </div>
+
             </a>
 
         </div>
@@ -265,13 +451,25 @@
 </div>
 
 
+
+{{-- ========================================================= --}}
+{{-- AGENT WORKLOAD --}}
+{{-- ========================================================= --}}
+
 <section class="admin-card agent-workload-card">
 
     <div class="admin-card-header">
 
         <div>
-            <h2>Agent Workload</h2>
-            <p>Current ticket distribution across support agents.</p>
+
+            <h2>
+                Agent Workload
+            </h2>
+
+            <p>
+                Current ticket distribution across support agents.
+            </p>
+
         </div>
 
     </div>
@@ -279,79 +477,142 @@
 
     <div class="workload-grid">
 
-        <div class="agent-workload">
+        @forelse($agents as $agent)
 
-            <div class="agent-info">
-                <div class="agent-avatar">
-                    AH
+            @php
+
+                /*
+                |--------------------------------------------------------------------------
+                | Generate Agent Initials
+                |--------------------------------------------------------------------------
+                */
+
+                $nameParts = explode(
+                    ' ',
+                    trim($agent->Name)
+                );
+
+                $initials = '';
+
+                foreach ($nameParts as $part) {
+
+                    if (!empty($part)) {
+
+                        $initials .= strtoupper(
+                            substr($part, 0, 1)
+                        );
+
+                    }
+
+                    if (strlen($initials) >= 2) {
+                        break;
+                    }
+
+                }
+
+
+                /*
+                |--------------------------------------------------------------------------
+                | Workload Level
+                |--------------------------------------------------------------------------
+                |
+                | 0 - 3 tickets  = Low
+                | 4 - 7 tickets  = Medium
+                | 8+ tickets     = High
+                |
+                */
+
+                $activeTickets =
+                    $agent->active_tickets_count;
+
+
+                if ($activeTickets >= 8) {
+
+                    $workloadClass =
+                        'workload-high';
+
+                } elseif ($activeTickets >= 4) {
+
+                    $workloadClass =
+                        'workload-medium';
+
+                } else {
+
+                    $workloadClass =
+                        'workload-low';
+
+                }
+
+            @endphp
+
+
+            <div class="agent-workload">
+
+
+                {{-- AGENT INFORMATION --}}
+                <div class="agent-info">
+
+                    <div class="agent-avatar">
+
+                        {{ $initials }}
+
+                    </div>
+
+
+                    <div>
+
+                        <strong>
+
+                            {{ $agent->Name }}
+
+                        </strong>
+
+                        <span>
+                            IT Support Agent
+                        </span>
+
+                    </div>
+
                 </div>
 
-                <div>
-                    <strong>Ahmad Hassan</strong>
-                    <span>IT Support Agent</span>
+
+
+                {{-- WORKLOAD --}}
+                <div class="workload-details">
+
+                    <span>
+
+                        {{ $activeTickets }}
+
+                        {{ $activeTickets == 1 ? 'active ticket' : 'active tickets' }}
+
+                    </span>
+
+
+                    <div class="workload-track">
+
+                        <div
+                            class="workload-fill {{ $workloadClass }}"
+                        ></div>
+
+                    </div>
+
                 </div>
+
             </div>
 
 
-            <div class="workload-details">
-                <span>12 active tickets</span>
+        @empty
 
-                <div class="workload-track">
-                    <div class="workload-fill workload-high"></div>
-                </div>
+            <div>
+
+                <p>
+                    No IT Support agents found.
+                </p>
+
             </div>
 
-        </div>
-
-
-        <div class="agent-workload">
-
-            <div class="agent-info">
-                <div class="agent-avatar">
-                    SA
-                </div>
-
-                <div>
-                    <strong>Sarah Ali</strong>
-                    <span>IT Support Agent</span>
-                </div>
-            </div>
-
-
-            <div class="workload-details">
-                <span>8 active tickets</span>
-
-                <div class="workload-track">
-                    <div class="workload-fill workload-medium"></div>
-                </div>
-            </div>
-
-        </div>
-
-
-        <div class="agent-workload">
-
-            <div class="agent-info">
-                <div class="agent-avatar">
-                    OK
-                </div>
-
-                <div>
-                    <strong>Omar Khalil</strong>
-                    <span>IT Support Agent</span>
-                </div>
-            </div>
-
-
-            <div class="workload-details">
-                <span>5 active tickets</span>
-
-                <div class="workload-track">
-                    <div class="workload-fill workload-low"></div>
-                </div>
-            </div>
-
-        </div>
+        @endforelse
 
     </div>
 

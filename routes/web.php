@@ -11,6 +11,7 @@ use App\Http\Controllers\AdminItManager;
 use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeTicketController;
 use App\Http\Controllers\ForgotPasswordController;
+use App\Http\Controllers\NotificationController;
 
 use App\Mail\TestMail;
 
@@ -87,8 +88,11 @@ Route::get('/support/tickets/{id}', [ItSupportController::class, 'ViewTicketDeta
     Route::post('/support/tickets/{id}/comments', [ItSupportController::class, 'storeComment'])
     ->name('support.ticket.comment');
 
-
-
+// histories 
+Route::get(
+    '/tickets/{id}/history',
+    [AdminItManager::class, 'ShowTicketHistory']
+)->name('manager.ticket.history');
 
 
 // =====================================================
@@ -100,14 +104,16 @@ Route::view('/layout', 'layouts.app');
 Route::view('/profile', 'profile.index')
     ->middleware('role:Administrator,IT Manager,IT Support,Employee');
 
-Route::view('/dashboard', 'dashboard.index')
-    ->middleware('role:Administrator,IT Manager,IT Support');
+Route::get('/dashboard', [ItManagerController::class, 'dashboard'])
+    ->middleware('role:IT Manager')
+    ->name('manager.dashboard');
 
 Route::view('/Assign/tickets', 'tickets.show')
     ->middleware('role:Administrator,IT Manager,IT Support');
 
-Route::view('/notifications', 'notifications.index')
-    ->middleware('role:Administrator,IT Manager,IT Support,Employee');
+Route::get('/notifications', [NotificationController::class, 'index'])
+    ->middleware('role:Administrator,IT Manager,IT Support,Employee')
+    ->name('notifications');
 
 Route::view('/reports', 'reports.index')
     ->middleware('role:Administrator,IT Manager');
@@ -190,3 +196,12 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
     //comments
     Route::post('/manager/tickets/{id}/comments', [ItManagerController::class, 'storeComment'])
     ->name('manager.ticket.comment');
+
+    // notifications
+    Route::post('/notifications/{id}/read', [NotificationController::class, 'markAsRead'])
+    ->middleware('role:Administrator,IT Manager,IT Support,Employee')
+    ->name('notifications.read');
+
+    Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])
+    ->middleware('role:Administrator,IT Manager,IT Support,Employee')
+    ->name('notifications.readAll');

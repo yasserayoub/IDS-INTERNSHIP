@@ -1,177 +1,189 @@
 @extends('layouts.app')
 
-@section('title', 'Notifications | IT Help Desk')
-
-@section('page-css')
-    <link rel="stylesheet" href="{{ asset('css/notifications.css') }}">
-@endsection
+@section('title', 'Notifications')
 
 @section('page-title', 'Notifications')
 
-@section(
-    'page-description',
-    'Stay updated on ticket assignments, comments, escalations, and status changes.'
-)
+@section('page-description', 'View your recent notifications.')
 
 @section('notifications-active', 'active')
 
-
 @section('content')
 
-<div class="notifications-toolbar">
+<div class="card shadow-sm">
 
-    <div class="notification-tabs">
-        <button class="tab-button active">All</button>
-        <button class="tab-button">Unread</button>
+    {{-- Header --}}
+    <div class="card-header d-flex justify-content-between align-items-center">
+
+        <h4 class="mb-0">
+            Notification Center
+        </h4>
+
+        <div class="d-flex align-items-center gap-2">
+
+            <span class="badge bg-primary">
+                {{ $notifications->total() }} Notifications
+            </span>
+
+            <form action="{{ route('notifications.readAll') }}" method="POST">
+                @csrf
+
+                <button
+                    type="submit"
+                    class="btn btn-success btn-sm"
+                >
+                    Mark All as Read
+                </button>
+
+            </form>
+
+        </div>
+
     </div>
 
-    <button class="mark-read-button">
-        Mark all as read
-    </button>
+    {{-- Body --}}
+    <div class="card-body">
+
+        @forelse($notifications as $notification)
+
+            <div class="border rounded p-3 mb-3 {{ $notification->IsRead ? 'bg-light' : 'border-primary' }}">
+
+                <div class="d-flex justify-content-between align-items-start">
+
+                    <div class="flex-grow-1">
+
+                        <h5 class="mb-1">
+                            {{ $notification->Title }}
+                        </h5>
+
+                        <p class="mb-2">
+                            {{ $notification->Message }}
+                        </p>
+
+                        <small class="text-muted">
+
+                            {{ ucfirst(str_replace('_', ' ', $notification->Type)) }}
+
+                            •
+
+                            {{ $notification->CreatedAt->diffForHumans() }}
+
+                        </small>
+
+                    </div>
+
+                    <div class="text-end">
+
+                        @if(!$notification->IsRead)
+
+                            <span class="badge bg-success mb-2">
+                                New
+                            </span>
+
+                            <br>
+
+                        @endif
+
+                        @php
+
+                            $ticketRoute = null;
+
+                            switch (Auth::user()->role->Name) {
+
+                                case 'Administrator':
+                                case 'IT Manager':
+
+                                    $ticketRoute = route(
+                                        'manager.ticket.show',
+                                        $notification->TicketId
+                                    );
+
+                                    break;
+
+                                case 'IT Support':
+
+                                    $ticketRoute = route(
+                                        'support.ticket.show',
+                                        $notification->TicketId
+                                    );
+
+                                    break;
+
+                                case 'Employee':
+
+                                    $ticketRoute = route(
+                                        'employee.tickets.show',
+                                        $notification->TicketId
+                                    );
+
+                                    break;
+                            }
+
+                        @endphp
+
+                        @if($notification->ticket)
+
+                            <a
+                                href="{{ $ticketRoute }}"
+                                class="btn btn-outline-primary btn-sm"
+                            >
+                                View Ticket
+                            </a>
+
+                        @endif
+
+                        @if(!$notification->IsRead)
+
+                            <form
+                                action="{{ route('notifications.read', $notification->Id) }}"
+                                method="POST"
+                                class="mt-2"
+                            >
+                                @csrf
+
+                                <button
+                                    type="submit"
+                                    class="btn btn-success btn-sm"
+                                >
+                                    Mark as Read
+                                </button>
+
+                            </form>
+
+                        @endif
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        @empty
+
+            <div class="text-center py-5">
+
+                <h4>No Notifications</h4>
+
+                <p class="text-muted mb-0">
+                    You're all caught up!
+                </p>
+
+            </div>
+
+        @endforelse
+
+    </div>
+
+    @if($notifications->hasPages())
+
+        <div class="card-footer">
+
+            {{ $notifications->links() }}
+
+        </div>
+
+    @endif
 
 </div>
-
-
-<section class="notifications-card">
-
-    <div class="notification-item unread">
-
-        <div class="notification-icon">
-            🎫
-        </div>
-
-        <div class="notification-content">
-
-            <div class="notification-header">
-                <h3>New ticket assigned to you</h3>
-                <span>5 minutes ago</span>
-            </div>
-
-            <p>
-                Ticket <strong>#TKT-1012</strong> — Printer not responding
-                has been assigned to you.
-            </p>
-
-            <a href="#">
-                View Ticket
-            </a>
-
-        </div>
-
-        <span class="unread-dot"></span>
-
-    </div>
-
-
-    <div class="notification-item unread">
-
-        <div class="notification-icon">
-            💬
-        </div>
-
-        <div class="notification-content">
-
-            <div class="notification-header">
-                <h3>You were mentioned in a comment</h3>
-                <span>20 minutes ago</span>
-            </div>
-
-            <p>
-                Sarah Ali mentioned you in a comment on
-                <strong>#TKT-1008</strong>.
-            </p>
-
-            <a href="#">
-                View Conversation
-            </a>
-
-        </div>
-
-        <span class="unread-dot"></span>
-
-    </div>
-
-
-    <div class="notification-item">
-
-        <div class="notification-icon">
-            🔄
-        </div>
-
-        <div class="notification-content">
-
-            <div class="notification-header">
-                <h3>Ticket status updated</h3>
-                <span>1 hour ago</span>
-            </div>
-
-            <p>
-                Ticket <strong>#TKT-1004</strong> status changed from
-                In Progress to Resolved.
-            </p>
-
-            <a href="#">
-                View Ticket
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <div class="notification-item">
-
-        <div class="notification-icon">
-            ⚠️
-        </div>
-
-        <div class="notification-content">
-
-            <div class="notification-header">
-                <h3>Ticket escalated</h3>
-                <span>3 hours ago</span>
-            </div>
-
-            <p>
-                Ticket <strong>#TKT-1001</strong> was escalated to the
-                IT Manager for additional review.
-            </p>
-
-            <a href="#">
-                View Escalation
-            </a>
-
-        </div>
-
-    </div>
-
-
-    <div class="notification-item">
-
-        <div class="notification-icon">
-            ✅
-        </div>
-
-        <div class="notification-content">
-
-            <div class="notification-header">
-                <h3>Ticket resolved</h3>
-                <span>Yesterday</span>
-            </div>
-
-            <p>
-                Your ticket <strong>#TKT-0998</strong> — Outlook login issue
-                has been resolved.
-            </p>
-
-            <a href="#">
-                View Ticket
-            </a>
-
-        </div>
-
-    </div>
-
-</section>
 
 @endsection

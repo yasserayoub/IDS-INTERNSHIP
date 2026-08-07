@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use App\Models\User;
+use App\Services\NotificationService;
 
 use App\Models\Ticket;
 use App\Models\TicketStatus;
@@ -16,9 +18,7 @@ use App\Services\TicketHistoryLogger;
 class ItSupportController extends Controller
 {
 
-    // =========================================================
-    // SHOW ALL TICKETS ASSIGNED TO THE LOGGED-IN IT SUPPORT
-    // =========================================================
+
 
     public function MyTickets(Request $request)
     {
@@ -107,9 +107,6 @@ class ItSupportController extends Controller
     }
 
 
-    // =========================================================
-    // VIEW ONE ASSIGNED TICKET
-    // =========================================================
 
     public function ViewTicketDetails($id)
     {
@@ -141,9 +138,7 @@ class ItSupportController extends Controller
     }
 
 
-    // =========================================================
-    // UPDATE TICKET STATUS
-    // =========================================================
+
 
     public function UpdateTicket(Request $request, $id)
 {
@@ -188,7 +183,51 @@ class ItSupportController extends Controller
             $oldStatus,
             $newStatus
         );
+
+NotificationService::send(
+    $ticket->CreatedByUserId,
+    $ticket->Id,
+    'status_changed',
+    'Ticket Status Updated',
+    'Ticket ' . $ticket->ReferenceNumber . ' is now ' . $newStatus . '.'
+);
+
+
+
+$administrators = User::whereHas('role', function ($query) {
+    $query->where('Name', 'Administrator');
+})->get();
+
+foreach ($administrators as $admin) {
+
+    NotificationService::send(
+        $admin->Id,
+        $ticket->Id,
+        'status_changed',
+        'Ticket Status Updated',
+        'Ticket ' . $ticket->ReferenceNumber . ' is now ' . $newStatus . '.'
+    );
+}
+
+
+
+
+$managers = User::whereHas('role', function ($query) {
+    $query->where('Name', 'IT Manager');
+})->get();
+
+foreach ($managers as $manager) {
+
+    NotificationService::send(
+        $manager->Id,
+        $ticket->Id,
+        'status_changed',
+        'Ticket Status Updated',
+        'Ticket ' . $ticket->ReferenceNumber . ' is now ' . $newStatus . '.'
+    );
+}
     }
+
 
     return redirect()
         ->route('support.ticket.show', $ticket->Id)
@@ -214,9 +253,7 @@ class ItSupportController extends Controller
         $ticket = Ticket::findOrFail($id);
 
 
-        // -----------------------------------------------------
-        // CHECK THAT THIS IT SUPPORT IS ASSIGNED TO THE TICKET
-        // -----------------------------------------------------
+
 
         if (
             !$ticket->currentAssignment ||
@@ -234,9 +271,7 @@ class ItSupportController extends Controller
         }
 
 
-        // -----------------------------------------------------
-        // SAVE COMMENT
-        // -----------------------------------------------------
+
 
         TicketComment::create([
 
@@ -259,11 +294,56 @@ class ItSupportController extends Controller
                 now(),
 
         ]);
+      $message = Auth::user()->Name .
+    ' commented on ticket ' .
+    $ticket->ReferenceNumber . '.';
+
+// Notify the employee who created the ticket
+NotificationService::send(
+    $ticket->CreatedByUserId,
+    $ticket->Id,
+    'comment_added',
+    'New Comment',
+    $message
+);
+// Notify all Administrators
+$administrators = User::whereHas('role', function ($query) {
+    $query->where('Name', 'Administrator');
+})->get();
+
+foreach ($administrators as $admin) {
+
+    NotificationService::send(
+        $admin->Id,
+        $ticket->Id,
+        'comment_added',
+        'New Comment',
+        $message
+    );
+
+}
+
+// Notify all IT Managers
+$managers = User::whereHas('role', function ($query) {
+    $query->where('Name', 'IT Manager');
+})->get();
+
+foreach ($managers as $manager) {
+
+    NotificationService::send(
+        $manager->Id,
+        $ticket->Id,
+        'comment_added',
+        'New Comment',
+        $message
+    );
+
+}
 
 
-        // -----------------------------------------------------
-        // SAVE ACTIVITY LOG
-        // -----------------------------------------------------
+
+
+
 
         ActivityLogger::log(
 

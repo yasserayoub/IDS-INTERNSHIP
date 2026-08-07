@@ -167,11 +167,23 @@
 
                     <td>{{ $ticket->CreatedAt->format('M j, Y') }}</td>
 
-                    <td>
-                        <a href="{{ route('manager.ticket.show', $ticket->Id) }}"" class="table-action">
-                            View
-                        </a>
-                    </td>
+                   <td class="action-buttons">
+
+    <a
+        href="{{ route('manager.ticket.show', $ticket->Id) }}"
+        class="btn-action btn-view"
+    >
+        View
+    </a>
+
+    <a
+        href="{{ route('manager.ticket.history', $ticket->Id) }}"
+        class="btn-action btn-history"
+    >
+        History
+    </a>
+
+</td>
 
                 </tr>
 
