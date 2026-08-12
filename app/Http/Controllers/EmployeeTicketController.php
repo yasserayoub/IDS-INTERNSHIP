@@ -6,6 +6,7 @@ use App\Models\User;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Storage;
 
@@ -16,6 +17,8 @@ use App\Models\TicketAttachment;
 
 use App\Services\ActivityLogger;
 use App\Services\TicketHistoryLogger;
+use App\Services\TicketCategoryClassifier;
+use App\Services\TicketPriorityClassifier;
 
 class EmployeeTicketController extends Controller
 {
@@ -58,12 +61,16 @@ class EmployeeTicketController extends Controller
 
    
 
-    public function store(Request $request)
+    public function store(
+        Request $request,
+        TicketCategoryClassifier $ticketCategoryClassifier,
+        TicketPriorityClassifier $ticketPriorityClassifier
+    )
     {
         $request->validate([
             'Title' => 'required|string|max:255',
-            'CategoryId' => 'required|exists:TicketCategories,Id',
-            'PriorityId' => 'required|exists:TicketPriorities,Id',
+            'CategoryId' => 'nullable|exists:TicketCategories,Id',
+            'PriorityId' => 'nullable|exists:TicketPriorities,Id',
             'Description' => 'required|string',
 
             'attachments' => 'nullable|array',
@@ -84,11 +91,73 @@ class EmployeeTicketController extends Controller
 
         $ticket->CreatedByUserId = Auth::id();
 
-        $ticket->CategoryId =
-            $request->CategoryId;
+        // Preserve a manually selected category. Only ask AI to classify when
+        // the employee leaves the Category dropdown empty.
+        $categoryId = $request->input('CategoryId');
 
-        $ticket->PriorityId =
-            $request->PriorityId;
+        if (blank($categoryId)) {
+            $category = $ticketCategoryClassifier->classify(
+                $request->input('Title'),
+                $request->input('Description')
+            );
+
+            if ($category === null) {
+                Log::info('AI ticket category classification unavailable and no category was selected.');
+
+                return back()
+                    ->withErrors([
+                        'CategoryId' => 'Unable to determine a category automatically. Please select a category manually.',
+                    ])
+                    ->withInput();
+            }
+
+            $categoryId = $category->Id;
+
+            Log::info('AI ticket category classification applied.', [
+                'category_id' => $category->Id,
+                'category_name' => $category->Name,
+            ]);
+        } else {
+            Log::info('Manual ticket category selection preserved.', [
+                'category_id' => $categoryId,
+            ]);
+        }
+
+        $ticket->CategoryId = $categoryId;
+
+        // Preserve a manually selected priority. Only ask AI to classify when
+        // the employee leaves the Priority dropdown empty.
+        $priorityId = $request->input('PriorityId');
+
+        if (blank($priorityId)) {
+            $priority = $ticketPriorityClassifier->classify(
+                $request->input('Title'),
+                $request->input('Description')
+            );
+
+            if ($priority === null) {
+                Log::info('AI ticket priority classification unavailable and no priority was selected.');
+
+                return back()
+                    ->withErrors([
+                        'PriorityId' => 'Unable to determine a priority automatically. Please select a priority manually.',
+                    ])
+                    ->withInput();
+            }
+
+            $priorityId = $priority->Id;
+
+            Log::info('AI ticket priority classification applied.', [
+                'priority_id' => $priority->Id,
+                'priority_name' => $priority->Name,
+            ]);
+        } else {
+            Log::info('Manual ticket priority selection preserved.', [
+                'priority_id' => $priorityId,
+            ]);
+        }
+
+        $ticket->PriorityId = $priorityId;
 
         $ticket->StatusId = 1;
 
@@ -362,8 +431,39 @@ foreach ($managers as $manager) {
         $ticket->CategoryId =
             $request->CategoryId;
 
-        $ticket->PriorityId =
-            $request->PriorityId;
+        // Preserve a manually selected priority. Only ask AI to classify when
+        // the employee leaves the Priority dropdown empty.
+        $priorityId = $request->input('PriorityId');
+
+        if (blank($priorityId)) {
+            $priority = $ticketPriorityClassifier->classify(
+                $request->input('Title'),
+                $request->input('Description')
+            );
+
+            if ($priority === null) {
+                Log::info('AI ticket priority classification unavailable and no priority was selected.');
+
+                return back()
+                    ->withErrors([
+                        'PriorityId' => 'Unable to determine a priority automatically. Please select a priority manually.',
+                    ])
+                    ->withInput();
+            }
+
+            $priorityId = $priority->Id;
+
+            Log::info('AI ticket priority classification applied.', [
+                'priority_id' => $priority->Id,
+                'priority_name' => $priority->Name,
+            ]);
+        } else {
+            Log::info('Manual ticket priority selection preserved.', [
+                'priority_id' => $priorityId,
+            ]);
+        }
+
+        $ticket->PriorityId = $priorityId;
 
         $ticket->Description =
             $request->Description;

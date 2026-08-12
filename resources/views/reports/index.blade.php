@@ -10,136 +10,539 @@
 
 @section(
     'page-description',
-    'Analyze ticket performance, resolution times, and support activity.'
+    'Overview of help desk performance, ticket activity, priorities, and agent workload.'
 )
-
-@section('reports-active', 'active')
-
 
 @section('content')
 
-<div class="reports-toolbar">
+<div class="reports-page">
 
-    <div class="report-period">
-        <label for="period">Report Period</label>
+    {{-- =====================================================
+         REPORT HEADER
+    ====================================================== --}}
 
-        <select id="period">
-            <option>July 2026</option>
-            <option>June 2026</option>
-            <option>May 2026</option>
-            <option>April 2026</option>
-        </select>
+    <div class="report-header">
+
+        <div class="report-header-content">
+
+            <div class="report-header-icon">
+                📊
+            </div>
+
+            <div>
+
+                <h1>
+                    Help Desk Reports
+                </h1>
+
+                <p>
+                    Analyze ticket activity and support performance.
+                </p>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <button class="export-button">
-        Export Report
-    </button>
 
-</div>
+    {{-- =====================================================
+         DATE FILTER
+    ====================================================== --}}
+
+    <section class="report-card filter-card">
+
+        <div class="report-card-header">
+
+            <div>
+
+                <span class="section-eyebrow">
+                    REPORT PERIOD
+                </span>
+
+                <h2>
+                    Filter Report
+                </h2>
+
+                <p>
+                    Select a date range to analyze tickets created
+                    during a specific period.
+                </p>
+
+            </div>
+
+        </div>
 
 
-<div class="report-stats">
+        <form
+            method="GET"
+            action="{{ route('reports.index') }}"
+            class="report-filter-form"
+        >
 
-    <div class="report-stat-card">
-        <span>Total Tickets</span>
-        <h2>128</h2>
-        <p>+12% from last month</p>
+            {{-- FROM DATE --}}
+
+            <div class="date-field">
+
+                <label for="from_date">
+                    From Date
+                </label>
+
+                <div class="date-input-wrapper">
+
+                    <span class="date-icon">
+                        📅
+                    </span>
+
+                    <input
+                        type="date"
+                        id="from_date"
+                        name="from_date"
+                        value="{{ request('from_date') }}"
+                    >
+
+                </div>
+
+            </div>
+
+
+            {{-- TO DATE --}}
+
+            <div class="date-field">
+
+                <label for="to_date">
+                    To Date
+                </label>
+
+                <div class="date-input-wrapper">
+
+                    <span class="date-icon">
+                        📅
+                    </span>
+
+                    <input
+                        type="date"
+                        id="to_date"
+                        name="to_date"
+                        value="{{ request('to_date') }}"
+                    >
+
+                </div>
+
+            </div>
+
+
+            {{-- ACTION BUTTONS --}}
+
+            <div class="filter-actions">
+
+                <button
+                    type="submit"
+                    class="report-button primary"
+                >
+                    Apply Filter
+                </button>
+
+
+                @if(request('from_date') || request('to_date'))
+
+                    <a
+                        href="{{ route('reports.index') }}"
+                        class="report-button secondary"
+                    >
+                        Reset
+                    </a>
+
+                @endif
+
+
+                {{-- EXPORT EXCEL --}}
+
+                <a
+                    href="{{ route('reports.export.excel', [
+                        'from_date' => request('from_date'),
+                        'to_date' => request('to_date'),
+                    ]) }}"
+                    class="export-excel-btn"
+                >
+                    📊
+                    Export Excel
+                </a>
+                <a
+    href="{{ route('reports.export.pdf', [
+        'from_date' => request('from_date'),
+        'to_date' => request('to_date'),
+    ]) }}"
+    class="export-pdf-btn"
+>
+    <span>📄</span>
+    Export PDF
+</a>
+
+            </div>
+
+        </form>
+
+
+        {{-- ACTIVE FILTER INFORMATION --}}
+
+        @if(request('from_date') || request('to_date'))
+
+            <div class="active-filter">
+
+                <span class="active-filter-dot"></span>
+
+                <span>
+                    Showing tickets from
+
+                    <strong>
+                        {{ request('from_date') ?: 'Beginning' }}
+                    </strong>
+
+                    to
+
+                    <strong>
+                        {{ request('to_date') ?: 'Today' }}
+                    </strong>
+                </span>
+
+            </div>
+
+        @endif
+
+    </section>
+
+
+    {{-- =====================================================
+         KPI OVERVIEW
+    ====================================================== --}}
+
+    <div class="kpi-grid">
+
+
+        {{-- TOTAL TICKETS --}}
+
+        <div class="kpi-card">
+
+            <div class="kpi-icon blue">
+                🎫
+            </div>
+
+            <div class="kpi-content">
+
+                <span class="kpi-label">
+                    Total Tickets
+                </span>
+
+                <strong class="kpi-value">
+                    {{ $totalTickets }}
+                </strong>
+
+                <span class="kpi-description">
+                    All tickets
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {{-- OPEN TICKETS --}}
+
+        <div class="kpi-card">
+
+            <div class="kpi-icon orange">
+                🔓
+            </div>
+
+            <div class="kpi-content">
+
+                <span class="kpi-label">
+                    Open Tickets
+                </span>
+
+                <strong class="kpi-value">
+                    {{ $openTickets }}
+                </strong>
+
+                <span class="kpi-description">
+                    Currently open
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {{-- IN PROGRESS --}}
+
+        <div class="kpi-card">
+
+            <div class="kpi-icon purple">
+                ⚙️
+            </div>
+
+            <div class="kpi-content">
+
+                <span class="kpi-label">
+                    In Progress
+                </span>
+
+                <strong class="kpi-value">
+                    {{ $inProgressTickets }}
+                </strong>
+
+                <span class="kpi-description">
+                    Being handled
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {{-- PENDING --}}
+
+        <div class="kpi-card">
+
+            <div class="kpi-icon yellow">
+                ⏳
+            </div>
+
+            <div class="kpi-content">
+
+                <span class="kpi-label">
+                    Pending
+                </span>
+
+                <strong class="kpi-value">
+                    {{ $pendingTickets }}
+                </strong>
+
+                <span class="kpi-description">
+                    Waiting for action
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {{-- RESOLVED --}}
+
+        <div class="kpi-card">
+
+            <div class="kpi-icon green">
+                ✓
+            </div>
+
+            <div class="kpi-content">
+
+                <span class="kpi-label">
+                    Resolved
+                </span>
+
+                <strong class="kpi-value">
+                    {{ $resolvedTickets }}
+                </strong>
+
+                <span class="kpi-description">
+                    Successfully resolved
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {{-- CLOSED --}}
+
+        <div class="kpi-card">
+
+            <div class="kpi-icon gray">
+                🔒
+            </div>
+
+            <div class="kpi-content">
+
+                <span class="kpi-label">
+                    Closed
+                </span>
+
+                <strong class="kpi-value">
+                    {{ $closedTickets }}
+                </strong>
+
+                <span class="kpi-description">
+                    Completed tickets
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {{-- CANCELLED --}}
+
+        <div class="kpi-card">
+
+            <div class="kpi-icon red">
+                ✕
+            </div>
+
+            <div class="kpi-content">
+
+                <span class="kpi-label">
+                    Cancelled
+                </span>
+
+                <strong class="kpi-value">
+                    {{ $cancelledTickets }}
+                </strong>
+
+                <span class="kpi-description">
+                    Cancelled tickets
+                </span>
+
+            </div>
+
+        </div>
+
+
+        {{-- UNRESOLVED --}}
+
+        <div class="kpi-card">
+
+            <div class="kpi-icon dark">
+                !
+            </div>
+
+            <div class="kpi-content">
+
+                <span class="kpi-label">
+                    Unresolved
+                </span>
+
+                <strong class="kpi-value">
+                    {{ $unresolvedTickets }}
+                </strong>
+
+                <span class="kpi-description">
+                    Still requiring action
+                </span>
+
+            </div>
+
+        </div>
+
     </div>
 
-    <div class="report-stat-card">
-        <span>Resolved Tickets</span>
-        <h2>96</h2>
-        <p>75% resolution rate</p>
-    </div>
 
-    <div class="report-stat-card">
-        <span>Average Resolution Time</span>
-        <h2>4.2h</h2>
-        <p>0.8h faster than last month</p>
-    </div>
-
-    <div class="report-stat-card">
-        <span>Pending Tickets</span>
-        <h2>14</h2>
-        <p>11% of total tickets</p>
-    </div>
-
-</div>
-
-
-<div class="reports-grid">
-
-    <!-- Tickets by Category -->
+    {{-- =====================================================
+         PERFORMANCE SUMMARY
+    ====================================================== --}}
 
     <section class="report-card">
 
         <div class="report-card-header">
+
             <div>
-                <h2>Tickets by Category</h2>
-                <p>Distribution of support requests.</p>
+
+                <span class="section-eyebrow">
+                    PERFORMANCE SUMMARY
+                </span>
+
+                <h2>
+                    Resolution Overview
+                </h2>
+
+                <p>
+                    Summary of ticket resolution performance.
+                </p>
+
             </div>
+
         </div>
 
 
-        <div class="bar-chart">
+        <div class="performance-grid">
 
-            <div class="bar-row">
-                <div class="bar-label">
-                    <span>Hardware</span>
-                    <strong>42</strong>
+
+            {{-- RESOLUTION RATE --}}
+
+            <div class="performance-item">
+
+                <div class="performance-top">
+
+                    <span>
+                        Resolution Rate
+                    </span>
+
+                    <strong>
+                        {{ $resolutionRate }}%
+                    </strong>
+
                 </div>
 
-                <div class="bar-track">
-                    <div class="bar-fill width-100"></div>
+                <div class="progress-track">
+
+                    <div
+                        class="progress-bar"
+                        style="width: {{ min($resolutionRate, 100) }}%;"
+                    ></div>
+
                 </div>
+
+                <small>
+                    Percentage of all tickets that have been resolved.
+                </small>
+
             </div>
 
 
-            <div class="bar-row">
-                <div class="bar-label">
-                    <span>Software</span>
-                    <strong>35</strong>
+            {{-- RESOLVED --}}
+
+            <div class="performance-stat">
+
+                <div class="stat-icon green">
+                    ✓
                 </div>
 
-                <div class="bar-track">
-                    <div class="bar-fill width-83"></div>
+                <div>
+
+                    <span>
+                        Resolved
+                    </span>
+
+                    <strong>
+                        {{ $resolvedTickets }}
+                    </strong>
+
                 </div>
+
             </div>
 
 
-            <div class="bar-row">
-                <div class="bar-label">
-                    <span>Network</span>
-                    <strong>28</strong>
+            {{-- UNRESOLVED --}}
+
+            <div class="performance-stat">
+
+                <div class="stat-icon orange">
+                    !
                 </div>
 
-                <div class="bar-track">
-                    <div class="bar-fill width-67"></div>
-                </div>
-            </div>
+                <div>
 
+                    <span>
+                        Unresolved
+                    </span>
 
-            <div class="bar-row">
-                <div class="bar-label">
-                    <span>Email</span>
-                    <strong>15</strong>
-                </div>
+                    <strong>
+                        {{ $unresolvedTickets }}
+                    </strong>
 
-                <div class="bar-track">
-                    <div class="bar-fill width-36"></div>
-                </div>
-            </div>
-
-
-            <div class="bar-row">
-                <div class="bar-label">
-                    <span>Other</span>
-                    <strong>8</strong>
                 </div>
 
-                <div class="bar-track">
-                    <div class="bar-fill width-20"></div>
-                </div>
             </div>
 
         </div>
@@ -147,65 +550,323 @@
     </section>
 
 
-    <!-- Tickets by Priority -->
+    {{-- =====================================================
+         CHARTS
+    ====================================================== --}}
+
+    <div class="charts-grid">
+
+
+        {{-- STATUS DISTRIBUTION --}}
+
+        <section class="report-card chart-card">
+
+            <div class="report-card-header">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        TICKET ANALYSIS
+                    </span>
+
+                    <h2>
+                        Ticket Status Distribution
+                    </h2>
+
+                    <p>
+                        Breakdown of tickets by current status.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-wrapper">
+
+                <canvas id="statusChart"></canvas>
+
+            </div>
+
+        </section>
+
+
+        {{-- PRIORITY DISTRIBUTION --}}
+
+        <section class="report-card chart-card">
+
+            <div class="report-card-header">
+
+                <div>
+
+                    <span class="section-eyebrow">
+                        PRIORITY ANALYSIS
+                    </span>
+
+                    <h2>
+                        Ticket Priority Distribution
+                    </h2>
+
+                    <p>
+                        Breakdown of tickets by priority.
+                    </p>
+
+                </div>
+
+            </div>
+
+
+            <div class="chart-wrapper">
+
+                <canvas id="priorityChart"></canvas>
+
+            </div>
+
+        </section>
+
+    </div>
+
+
+    {{-- =====================================================
+         AGENT WORKLOAD
+    ====================================================== --}}
+
+    <section class="report-card chart-card">
+
+        <div class="report-card-header">
+
+            <div>
+
+                <span class="section-eyebrow">
+                    SUPPORT PERFORMANCE
+                </span>
+
+                <h2>
+                    IT Support Agent Workload
+                </h2>
+
+                <p>
+                    Number of currently assigned tickets per support agent.
+                </p>
+
+            </div>
+
+        </div>
+
+
+        <div class="agent-chart-wrapper">
+
+            <canvas id="agentWorkloadChart"></canvas>
+
+        </div>
+
+    </section>
+
+
+    {{-- =====================================================
+         RECENT TICKETS
+    ====================================================== --}}
 
     <section class="report-card">
 
         <div class="report-card-header">
+
             <div>
-                <h2>Tickets by Priority</h2>
-                <p>Ticket distribution by urgency level.</p>
-            </div>
-        </div>
 
+                <span class="section-eyebrow">
+                    RECENT ACTIVITY
+                </span>
 
-        <div class="priority-report">
+                <h2>
+                    Recent Tickets
+                </h2>
 
-            <div class="priority-report-item">
-                <div>
-                    <span class="priority-dot critical-dot"></span>
-                    <span>Critical</span>
-                </div>
+                <p>
+                    The five most recently created tickets.
+                </p>
 
-                <strong>8</strong>
-            </div>
-
-
-            <div class="priority-report-item">
-                <div>
-                    <span class="priority-dot high-dot"></span>
-                    <span>High</span>
-                </div>
-
-                <strong>30</strong>
-            </div>
-
-
-            <div class="priority-report-item">
-                <div>
-                    <span class="priority-dot medium-dot"></span>
-                    <span>Medium</span>
-                </div>
-
-                <strong>54</strong>
-            </div>
-
-
-            <div class="priority-report-item">
-                <div>
-                    <span class="priority-dot low-dot"></span>
-                    <span>Low</span>
-                </div>
-
-                <strong>36</strong>
             </div>
 
         </div>
 
 
-        <div class="priority-total">
-            <span>Total Tickets</span>
-            <strong>128</strong>
+        <div class="table-container">
+
+            <table class="report-table">
+
+                <thead>
+
+                    <tr>
+
+                        <th>
+                            Ticket
+                        </th>
+
+                        <th>
+                            Title
+                        </th>
+
+                        <th>
+                            Priority
+                        </th>
+
+                        <th>
+                            Status
+                        </th>
+
+                        <th>
+                            Assigned To
+                        </th>
+
+                        <th>
+                            Created
+                        </th>
+
+                    </tr>
+
+                </thead>
+
+
+                <tbody>
+
+                    @forelse($recentTickets as $ticket)
+
+                        <tr>
+
+                            {{-- TICKET --}}
+
+                            <td>
+
+                                <span class="ticket-reference">
+                                    {{ $ticket->ReferenceNumber }}
+                                </span>
+
+                            </td>
+
+
+                            {{-- TITLE --}}
+
+                            <td>
+                                {{ $ticket->Title }}
+                            </td>
+
+
+                            {{-- PRIORITY --}}
+
+                            <td>
+
+                                @php
+                                    $priorityClass = match(
+                                        $ticket->priority?->Name
+                                    ) {
+                                        'Low' => 'priority-low',
+                                        'Medium' => 'priority-medium',
+                                        'High' => 'priority-high',
+                                        'Critical' => 'priority-critical',
+                                        default => ''
+                                    };
+                                @endphp
+
+                                <span
+                                    class="priority-badge {{ $priorityClass }}"
+                                >
+                                    {{ $ticket->priority?->Name ?? 'N/A' }}
+                                </span>
+
+                            </td>
+
+
+                            {{-- STATUS --}}
+
+                            <td>
+
+                                @php
+                                    $statusClass = match(
+                                        $ticket->status?->Name
+                                    ) {
+                                        'Open' => 'status-open',
+                                        'In Progress' => 'status-progress',
+                                        'Pending' => 'status-pending',
+                                        'Resolved' => 'status-resolved',
+                                        'Closed' => 'status-closed',
+                                        'Cancelled' => 'status-cancelled',
+                                        'Reopened' => 'status-reopened',
+                                        default => ''
+                                    };
+                                @endphp
+
+                                <span
+                                    class="status-badge {{ $statusClass }}"
+                                >
+                                    {{ $ticket->status?->Name ?? 'N/A' }}
+                                </span>
+
+                            </td>
+
+
+                            {{-- ASSIGNED AGENT --}}
+
+                            <td>
+
+                                @if(
+                                    $ticket->currentAssignment &&
+                                    $ticket->currentAssignment->assignedTo
+                                )
+
+                                    {{ $ticket->currentAssignment->assignedTo->Name }}
+
+                                @else
+
+                                    <span class="not-assigned">
+                                        Not Assigned
+                                    </span>
+
+                                @endif
+
+                            </td>
+
+
+                            {{-- CREATED DATE --}}
+
+                            <td>
+
+                                {{ $ticket->CreatedAt?->format('M j, Y') }}
+
+                            </td>
+
+                        </tr>
+
+                    @empty
+
+                        <tr>
+
+                            <td
+                                colspan="6"
+                                class="empty-state"
+                            >
+
+                                <div class="empty-icon">
+                                    📭
+                                </div>
+
+                                <h3>
+                                    No Tickets Found
+                                </h3>
+
+                                <p>
+                                    No tickets were found for the selected period.
+                                </p>
+
+                            </td>
+
+                        </tr>
+
+                    @endforelse
+
+                </tbody>
+
+            </table>
+
         </div>
 
     </section>
@@ -213,106 +874,220 @@
 </div>
 
 
-<!-- Agent Performance -->
+{{-- =====================================================
+     CHART.JS
+====================================================== --}}
 
-<section class="report-card agent-performance-card">
-
-    <div class="report-card-header">
-
-        <div>
-            <h2>Agent Performance</h2>
-            <p>Ticket resolution performance for IT support agents.</p>
-        </div>
-
-    </div>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 
-    <div class="report-table-wrapper">
+<script>
 
-        <table class="report-table">
-
-            <thead>
-                <tr>
-                    <th>Agent</th>
-                    <th>Assigned</th>
-                    <th>Resolved</th>
-                    <th>Pending</th>
-                    <th>Avg. Resolution</th>
-                    <th>Resolution Rate</th>
-                </tr>
-            </thead>
+document.addEventListener('DOMContentLoaded', function () {
 
 
-            <tbody>
+    /*
+    |--------------------------------------------------------------------------
+    | STATUS CHART
+    |--------------------------------------------------------------------------
+    */
 
-                <tr>
-                    <td>
-                        <div class="agent-cell">
-                            <span class="agent-avatar">AH</span>
-                            <strong>Ahmad Hassan</strong>
-                        </div>
-                    </td>
-
-                    <td>42</td>
-                    <td>36</td>
-                    <td>6</td>
-                    <td>3.8h</td>
-
-                    <td>
-                        <span class="rate-badge good-rate">
-                            86%
-                        </span>
-                    </td>
-                </tr>
+    const statusCanvas =
+        document.getElementById('statusChart');
 
 
-                <tr>
-                    <td>
-                        <div class="agent-cell">
-                            <span class="agent-avatar">SA</span>
-                            <strong>Sarah Ali</strong>
-                        </div>
-                    </td>
+    if (statusCanvas) {
 
-                    <td>38</td>
-                    <td>31</td>
-                    <td>7</td>
-                    <td>4.1h</td>
+        new Chart(statusCanvas, {
 
-                    <td>
-                        <span class="rate-badge good-rate">
-                            82%
-                        </span>
-                    </td>
-                </tr>
+            type: 'doughnut',
+
+            data: {
+
+                labels: @json($statusLabels),
+
+                datasets: [{
+
+                    data: @json($statusCounts),
+
+                    borderWidth: 2,
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                plugins: {
+
+                    legend: {
+
+                        position: 'bottom'
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
 
 
-                <tr>
-                    <td>
-                        <div class="agent-cell">
-                            <span class="agent-avatar">OK</span>
-                            <strong>yaser Ayoub</strong>
-                        </div>
-                    </td>
+    /*
+    |--------------------------------------------------------------------------
+    | PRIORITY CHART
+    |--------------------------------------------------------------------------
+    */
 
-                    <td>35</td>
-                    <td>29</td>
-                    <td>6</td>
-                    <td>4.7h</td>
+    const priorityCanvas =
+        document.getElementById('priorityChart');
 
-                    <td>
-                        <span class="rate-badge medium-rate">
-                            83%
-                        </span>
-                    </td>
-                </tr>
 
-            </tbody>
+    if (priorityCanvas) {
 
-        </table>
+        new Chart(priorityCanvas, {
 
-    </div>
+            type: 'bar',
 
-</section>
+            data: {
+
+                labels: @json($priorityLabels),
+
+                datasets: [{
+
+                    label: 'Tickets',
+
+                    data: @json($priorityCounts),
+
+                    borderRadius: 6,
+
+                    borderWidth: 0
+
+                }]
+
+            },
+
+            options: {
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    y: {
+
+                        beginAtZero: true,
+
+                        ticks: {
+
+                            precision: 0
+
+                        }
+
+                    }
+
+                },
+
+                plugins: {
+
+                    legend: {
+
+                        display: false
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+
+    /*
+    |--------------------------------------------------------------------------
+    | AGENT WORKLOAD CHART
+    |--------------------------------------------------------------------------
+    */
+
+    const agentCanvas =
+        document.getElementById('agentWorkloadChart');
+
+
+    if (agentCanvas) {
+
+        new Chart(agentCanvas, {
+
+            type: 'bar',
+
+            data: {
+
+                labels: @json($agentLabels),
+
+                datasets: [{
+
+                    label: 'Active Tickets',
+
+                    data: @json($agentTicketCounts),
+
+                    borderRadius: 6,
+
+                    borderWidth: 0
+
+                }]
+
+            },
+
+            options: {
+
+                indexAxis: 'y',
+
+                responsive: true,
+
+                maintainAspectRatio: false,
+
+                scales: {
+
+                    x: {
+
+                        beginAtZero: true,
+
+                        ticks: {
+
+                            precision: 0
+
+                        }
+
+                    }
+
+                },
+
+                plugins: {
+
+                    legend: {
+
+                        display: false
+
+                    }
+
+                }
+
+            }
+
+        });
+
+    }
+
+});
+
+</script>
 
 @endsection

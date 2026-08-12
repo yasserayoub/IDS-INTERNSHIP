@@ -12,6 +12,8 @@ use App\Http\Controllers\EmployeeController;
 use App\Http\Controllers\EmployeeTicketController;
 use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\NotificationController;
+use App\Http\Controllers\ReportController;
+use App\Http\Controllers\AIChatController;
 
 use App\Mail\TestMail;
 
@@ -88,7 +90,7 @@ Route::get('/support/tickets/{id}', [ItSupportController::class, 'ViewTicketDeta
     Route::post('/support/tickets/{id}/comments', [ItSupportController::class, 'storeComment'])
     ->name('support.ticket.comment');
 
-// histories 
+// histories
 Route::get(
     '/tickets/{id}/history',
     [AdminItManager::class, 'ShowTicketHistory']
@@ -205,3 +207,27 @@ Route::post('/reset-password', [ForgotPasswordController::class, 'resetPassword'
     Route::post('/notifications/read-all', [NotificationController::class, 'markAllAsRead'])
     ->middleware('role:Administrator,IT Manager,IT Support,Employee')
     ->name('notifications.readAll');
+
+    //reports
+
+Route::get(
+    '/reports',
+    [ReportController::class, 'index']
+)->middleware('auth')->name('reports.index');
+
+Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])
+    ->name('reports.export.excel')
+    ->middleware('auth');
+
+     Route::get('/reports/export/pdf', [ReportController::class, 'exportPdf'])
+        ->name('reports.export.pdf');
+
+
+        // ai
+Route::get('/ai-assistant', [AIChatController::class, 'index'])
+    ->middleware('role:Administrator,Employee')
+    ->name('ai.chat');
+
+Route::post('/ai-assistant/chat', [AIChatController::class, 'chat'])
+    ->middleware('role:Administrator,Employee')
+    ->name('ai.chat.send');
