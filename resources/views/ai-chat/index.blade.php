@@ -311,23 +311,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const sendButton = document.getElementById('aiChatSend');
     const messages = document.getElementById('chatMessages');
 
-    /*
-    |--------------------------------------------------------------------------
-    | Persistent Chat Storage
-    |--------------------------------------------------------------------------
-    |
-    | The conversation is stored in the browser's localStorage.
-    |
-    | This means the chat will remain when:
-    |
-    | - The user changes pages
-    | - The user returns to the assistant
-    | - The browser page is refreshed
-    |
-    */
-
     const CHAT_STORAGE_KEY = 'it_help_desk_ai_chat';
-
 
     /*
     |--------------------------------------------------------------------------
@@ -336,24 +320,15 @@ document.addEventListener('DOMContentLoaded', function () {
     */
 
     function saveChat() {
-
         try {
-
             localStorage.setItem(
                 CHAT_STORAGE_KEY,
                 messages.innerHTML
             );
-
         } catch (error) {
-
-            console.warn(
-                'Could not save AI chat history.',
-                error
-            );
-
+            console.warn('Could not save AI chat history.', error);
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -362,23 +337,41 @@ document.addEventListener('DOMContentLoaded', function () {
     */
 
     function loadChat() {
-
         try {
 
-            const savedChat =
-                localStorage.getItem(
+            const savedChat = localStorage.getItem(
+                CHAT_STORAGE_KEY
+            );
+
+            if (!savedChat) {
+                return;
+            }
+
+            /*
+             * If old/broken JSON was saved in localStorage,
+             * remove it instead of displaying it as text.
+             */
+
+            if (
+                savedChat.trim().startsWith('[{') ||
+                savedChat.trim().startsWith('{"')
+            ) {
+
+                console.warn(
+                    'Old AI chat format detected. Clearing saved chat.'
+                );
+
+                localStorage.removeItem(
                     CHAT_STORAGE_KEY
                 );
 
-
-            if (savedChat) {
-
-                messages.innerHTML = savedChat;
-
-                messages.scrollTop =
-                    messages.scrollHeight;
-
+                return;
             }
+
+            messages.innerHTML = savedChat;
+
+            messages.scrollTop =
+                messages.scrollHeight;
 
         } catch (error) {
 
@@ -387,9 +380,11 @@ document.addEventListener('DOMContentLoaded', function () {
                 error
             );
 
+            localStorage.removeItem(
+                CHAT_STORAGE_KEY
+            );
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -405,46 +400,30 @@ document.addEventListener('DOMContentLoaded', function () {
         wrapper.className =
             'chat-message ' + type;
 
-
         const bubble =
             document.createElement('div');
 
         bubble.className =
             'chat-bubble';
 
-
         /*
         |--------------------------------------------------------------------------
-        | textContent is intentional
+        | Use textContent for safety
         |--------------------------------------------------------------------------
-        |
-        | We don't use innerHTML for AI/user messages.
-        | This prevents HTML returned by the AI from being
-        | interpreted as actual HTML.
-        |
         */
 
-        bubble.textContent = message;
-
+        bubble.textContent =
+            message;
 
         wrapper.appendChild(bubble);
 
         messages.appendChild(wrapper);
 
-
         messages.scrollTop =
             messages.scrollHeight;
 
-
-        /*
-        |--------------------------------------------------------------------------
-        | Save immediately after adding the message
-        |--------------------------------------------------------------------------
-        */
-
         saveChat();
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -458,10 +437,9 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-
         /*
         |--------------------------------------------------------------------------
-        | Add user's message
+        | Add user message
         |--------------------------------------------------------------------------
         */
 
@@ -470,11 +448,9 @@ document.addEventListener('DOMContentLoaded', function () {
             'user'
         );
 
-
         input.value = '';
 
         sendButton.disabled = true;
-
 
         /*
         |--------------------------------------------------------------------------
@@ -488,17 +464,25 @@ document.addEventListener('DOMContentLoaded', function () {
         typing.className =
             'chat-message ai';
 
+        const typingBubble =
+            document.createElement('div');
 
-        typing.innerHTML =
-            '<div class="chat-bubble typing">AI is thinking...</div>';
+        typingBubble.className =
+            'chat-bubble typing';
 
+        typingBubble.textContent =
+            'AI is thinking...';
 
-        messages.appendChild(typing);
+        typing.appendChild(
+            typingBubble
+        );
 
+        messages.appendChild(
+            typing
+        );
 
         messages.scrollTop =
             messages.scrollHeight;
-
 
         try {
 
@@ -523,17 +507,53 @@ document.addEventListener('DOMContentLoaded', function () {
                         },
 
                         body: JSON.stringify({
-
                             message: message
-
                         })
                     }
                 );
 
+            /*
+            |--------------------------------------------------------------------------
+            | Check HTTP response
+            |--------------------------------------------------------------------------
+            */
+
+            if (!response.ok) {
+
+                let errorMessage =
+                    'The AI assistant is temporarily unavailable.';
+
+                try {
+
+                    const errorData =
+                        await response.json();
+
+                    if (errorData.message) {
+                        errorMessage =
+                            errorData.message;
+                    }
+
+                } catch (jsonError) {
+
+                    console.warn(
+                        'Could not read server error response.',
+                        jsonError
+                    );
+                }
+
+                throw new Error(
+                    `HTTP ${response.status}: ${errorMessage}`
+                );
+            }
+
+            /*
+            |--------------------------------------------------------------------------
+            | Read JSON response
+            |--------------------------------------------------------------------------
+            */
 
             const data =
                 await response.json();
-
 
             /*
             |--------------------------------------------------------------------------
@@ -543,14 +563,16 @@ document.addEventListener('DOMContentLoaded', function () {
 
             typing.remove();
 
-
             /*
             |--------------------------------------------------------------------------
-            | AI Response
+            | Display AI response
             |--------------------------------------------------------------------------
             */
 
-            if (data.success) {
+            if (
+                data.success === true &&
+                data.message
+            ) {
 
                 addMessage(
                     data.message,
@@ -564,30 +586,35 @@ document.addEventListener('DOMContentLoaded', function () {
                     'The AI assistant could not process your request.',
                     'ai'
                 );
-
             }
-
 
         } catch (error) {
 
             typing.remove();
 
-
-            addMessage(
-                'Sorry, I could not connect to the AI assistant right now.',
-                'ai'
+            console.error(
+                'AI chat request failed:',
+                error
             );
 
+            /*
+            |--------------------------------------------------------------------------
+            | Show a useful error to the user
+            |--------------------------------------------------------------------------
+            */
+
+            addMessage(
+                'The AI assistant is temporarily unavailable. Please try again.',
+                'ai'
+            );
 
         } finally {
 
             sendButton.disabled = false;
 
             input.focus();
-
         }
     }
-
 
     /*
     |--------------------------------------------------------------------------
@@ -595,19 +622,20 @@ document.addEventListener('DOMContentLoaded', function () {
     |--------------------------------------------------------------------------
     */
 
-    form.addEventListener(
-        'submit',
-        function (event) {
+    if (form) {
 
-            event.preventDefault();
+        form.addEventListener(
+            'submit',
+            function (event) {
 
-            sendMessage(
-                input.value
-            );
+                event.preventDefault();
 
-        }
-    );
-
+                sendMessage(
+                    input.value
+                );
+            }
+        );
+    }
 
     /*
     |--------------------------------------------------------------------------
@@ -617,23 +645,18 @@ document.addEventListener('DOMContentLoaded', function () {
 
     document
         .querySelectorAll('.suggestion-button')
-        .forEach(
-            function (button) {
+        .forEach(function (button) {
 
-                button.addEventListener(
-                    'click',
-                    function () {
+            button.addEventListener(
+                'click',
+                function () {
 
-                        sendMessage(
-                            button.dataset.message
-                        );
-
-                    }
-                );
-
-            }
-        );
-
+                    sendMessage(
+                        button.dataset.message
+                    );
+                }
+            );
+        });
 
     /*
     |--------------------------------------------------------------------------
@@ -645,5 +668,4 @@ document.addEventListener('DOMContentLoaded', function () {
 
 });
 </script>
-
 @endsection

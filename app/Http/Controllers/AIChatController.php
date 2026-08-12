@@ -40,6 +40,8 @@ class AIChatController extends Controller
         $apiKey = config('services.openai.api_key');
 
         if (blank($apiKey)) {
+            Log::error('OpenAI API key is missing.');
+
             return response()->json([
                 'success' => false,
                 'message' => 'The AI assistant is currently unavailable.',
@@ -47,12 +49,12 @@ class AIChatController extends Controller
         }
 
         /*
-         * Get the existing conversation from the session.
+         * Get existing conversation.
          */
         $conversation = session('ai_chat_messages', []);
 
         /*
-         * Add the new employee message.
+         * Add employee message.
          */
         $conversation[] = [
             'role' => 'user',
@@ -60,9 +62,7 @@ class AIChatController extends Controller
         ];
 
         /*
-         * Keep the conversation from becoming unnecessarily large.
-         *
-         * We keep the most recent 20 messages.
+         * Keep conversation reasonably small.
          */
         $conversation = array_slice($conversation, -20);
 
@@ -104,120 +104,234 @@ PROMPT,
                 $conversation
             );
 
-            $response = Http::acceptJson()
-                ->withToken($apiKey)
-                ->connectTimeout(5)
-                ->timeout((int) config('services.openai.timeout', 10))
-                ->post(
-                    'https://api.openai.com/v1/chat/completions',
-                    [
-                        'model' => config(
-                            'services.openai.model',
-                            'gpt-4o-mini'
-                        ),
+            /*
+             * ---------------------------------------------------------
+             * OPENAI REQUEST
+             * ---------------------------------------------------------
+             *
+             * Retry temporary failures such as:
+             * 429 rate limit
+             * 500 server error
+             * 502 bad gateway
+             * 503 unavailable
+             * 504 gateway timeout
+             */
 
-                        'temperature' => 0.3,
+            $maxAttempts = 3;
 
-                        'messages' => $messages,
-                    ]
-                );
+            $response = null;
 
+            for ($attempt = 1; $attempt <= $maxAttempts; $attempt++) {
 
-            if ($response->failed()) {
+                try {
 
-                Log::warning(
-                    'AI Help Desk request failed.',
-                    [
+                    Log::info('AI Help Desk request started.', [
+                        'attempt' => $attempt,
+                    ]);
+
+                    $response = Http::acceptJson()
+                        ->withToken($apiKey)
+                        ->connectTimeout(10)
+                        ->timeout(60)
+                        ->post(
+                            'https://api.openai.com/v1/chat/completions',
+                            [
+                                'model' => config(
+                                    'services.openai.model',
+                                    'gpt-4o-mini'
+                                ),
+
+                                'temperature' => 0.3,
+
+                                'messages' => $messages,
+                            ]
+                        );
+
+                    /*
+                     * Successful response.
+                     */
+                    if ($response->successful()) {
+                        break;
+                    }
+
+                    /*
+                     * Get useful information for the Laravel log.
+                     */
+                    Log::warning('OpenAI API returned an error.', [
+                        'attempt' => $attempt,
                         'status' => $response->status(),
-                    ]
-                );
+                        'body' => $response->body(),
+                    ]);
 
-                /*
-                 * Remove the user message we added because
-                 * the AI request failed.
-                 */
+                    /*
+                     * Retry only temporary errors.
+                     */
+                    $retryableStatuses = [
+                        429,
+                        500,
+                        502,
+                        503,
+                        504,
+                    ];
+
+                    if (
+                        !in_array(
+                            $response->status(),
+                            $retryableStatuses,
+                            true
+                        )
+                    ) {
+                        break;
+                    }
+
+                    /*
+                     * Wait before retrying.
+                     */
+                    if ($attempt < $maxAttempts) {
+                        sleep($attempt);
+                    }
+
+                } catch (Throwable $exception) {
+
+                    Log::warning('OpenAI connection attempt failed.', [
+                        'attempt' => $attempt,
+                        'exception' => $exception->getMessage(),
+                    ]);
+
+                    if ($attempt < $maxAttempts) {
+                        sleep($attempt);
+                    }
+                }
+            }
+
+            /*
+             * If no response was received at all.
+             */
+            if (!$response) {
+
                 array_pop($conversation);
 
                 return response()->json([
                     'success' => false,
                     'message' =>
-                        'The AI assistant could not process your request right now.',
+                        'The AI assistant could not connect right now. Please try again.',
+                ], 503);
+            }
+
+            /*
+             * OpenAI returned an error after all attempts.
+             */
+            if ($response->failed()) {
+
+                Log::error('OpenAI request failed after retries.', [
+                    'status' => $response->status(),
+                    'body' => $response->body(),
+                ]);
+
+                array_pop($conversation);
+
+                /*
+                 * Give the frontend a more useful message.
+                 */
+                if ($response->status() === 429) {
+
+                    $message =
+                        'The AI service is temporarily busy. Please try again in a few seconds.';
+
+                } elseif ($response->status() >= 500) {
+
+                    $message =
+                        'The AI service is temporarily unavailable. Please try again.';
+
+                } else {
+
+                    $message =
+                        'The AI assistant could not process your request.';
+                }
+
+                return response()->json([
+                    'success' => false,
+                    'message' => $message,
                 ], 502);
             }
 
-
+            /*
+             * Extract AI response.
+             */
             $content = data_get(
                 $response->json(),
                 'choices.0.message.content'
             );
 
-
+            /*
+             * Make sure we actually received text.
+             */
             if (!is_string($content) || blank($content)) {
+
+                Log::error('OpenAI returned an empty response.', [
+                    'response' => $response->json(),
+                ]);
 
                 array_pop($conversation);
 
                 return response()->json([
                     'success' => false,
                     'message' =>
-                        'The AI assistant returned an empty response.',
+                        'The AI assistant returned an empty response. Please try again.',
                 ], 502);
             }
 
-
             /*
-             * Save the AI response.
+             * Save assistant response.
              */
             $conversation[] = [
                 'role' => 'assistant',
                 'content' => $content,
             ];
 
-
             /*
-             * Keep only the latest 20 messages.
+             * Keep latest 20 messages.
              */
             $conversation = array_slice(
                 $conversation,
                 -20
             );
 
-
             /*
-             * Save conversation in Laravel session.
+             * Save conversation.
              */
             session([
                 'ai_chat_messages' => $conversation,
             ]);
 
-
+            /*
+             * Return successful response.
+             */
             return response()->json([
                 'success' => true,
                 'message' => $content,
             ]);
 
-
         } catch (Throwable $exception) {
 
-            Log::warning(
-                'AI Help Desk request unavailable.',
+            Log::error(
+                'AI Help Desk unexpected error.',
                 [
                     'exception' => $exception->getMessage(),
+                    'file' => $exception->getFile(),
+                    'line' => $exception->getLine(),
                 ]
             );
 
-            /*
-             * Remove unsaved user message if the request failed.
-             */
             array_pop($conversation);
 
             return response()->json([
                 'success' => false,
                 'message' =>
-                    'The AI assistant is temporarily unavailable.',
+                    'The AI assistant is temporarily unavailable. Please try again.',
             ], 503);
         }
     }
-
 
     /**
      * Clear the current user's AI conversation.

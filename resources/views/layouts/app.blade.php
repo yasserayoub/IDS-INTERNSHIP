@@ -214,21 +214,22 @@
             @endif
 
 
-            {{-- ================================================= --}}
-            {{-- EMPLOYEE --}}
-            {{-- ================================================= --}}
 
-            @if(
-                Auth::check() &&
-                Auth::user()->role->Name == 'Employee'
-            )
 
-                <a
-                    href="{{ route('ai.chat') }}"
-                    class="@yield('ai-assistant-active')"
-                >
-                    🤖 AI Assistant
-                </a>
+           @if(
+    Auth::check() &&
+    in_array(
+        Auth::user()->role->Name,
+        ['Administrator', 'IT Manager', 'IT Support', 'Employee']
+    )
+)
+    <a
+        href="{{ route('ai.chat') }}"
+        class="@yield('ai-assistant-active')"
+    >
+        🤖 AI Assistant
+    </a>
+@endif
 
                 <a
                     href="{{ route('CreateTicket') }}"
@@ -251,7 +252,7 @@
                     Notifications
                 </a>
 
-            @endif
+         
 
 
         </nav>

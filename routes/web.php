@@ -223,11 +223,11 @@ Route::get('/reports/export/excel', [ReportController::class, 'exportExcel'])
         ->name('reports.export.pdf');
 
 
-        // ai
+        //ai assistant
 Route::get('/ai-assistant', [AIChatController::class, 'index'])
-    ->middleware('role:Administrator,Employee')
+    ->middleware('role:Administrator,IT Manager,IT Support,Employee')
     ->name('ai.chat');
 
 Route::post('/ai-assistant/chat', [AIChatController::class, 'chat'])
-    ->middleware('role:Administrator,Employee')
+    ->middleware('role:Administrator,IT Manager,IT Support,Employee')
     ->name('ai.chat.send');
