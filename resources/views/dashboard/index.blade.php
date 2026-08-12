@@ -490,14 +490,12 @@
 {{-- PAGE JAVASCRIPT --}}
 {{-- ========================================================= --}}
 
-@section('page-js')
+@section('scripts')
 
 {{-- Chart.js --}}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
-
 <script>
-
 document.addEventListener('DOMContentLoaded', function () {
 
     /*
@@ -516,7 +514,6 @@ document.addEventListener('DOMContentLoaded', function () {
     const agentTicketCounts = @json($agentTicketCounts);
 
 
-
     /*
     |--------------------------------------------------------------------------
     | STATUS DOUGHNUT CHART
@@ -532,11 +529,9 @@ document.addEventListener('DOMContentLoaded', function () {
             type: 'doughnut',
 
             data: {
-
                 labels: statusLabels,
 
                 datasets: [{
-
                     label: 'Tickets',
 
                     data: statusCounts,
@@ -552,30 +547,24 @@ document.addEventListener('DOMContentLoaded', function () {
                     ],
 
                     borderWidth: 2,
-
                     borderColor: '#ffffff'
-
                 }]
-
             },
 
             options: {
 
                 responsive: true,
-
                 maintainAspectRatio: false,
 
                 plugins: {
 
                     legend: {
-
                         position: 'bottom',
 
                         labels: {
                             padding: 20,
                             usePointStyle: true
                         }
-
                     }
 
                 }
@@ -587,14 +576,14 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
-
     /*
     |--------------------------------------------------------------------------
     | PRIORITY DOUGHNUT CHART
     |--------------------------------------------------------------------------
     */
 
-    const priorityCanvas = document.getElementById('priorityChart');
+    const priorityCanvas =
+        document.getElementById('priorityChart');
 
     if (priorityCanvas) {
 
@@ -603,11 +592,9 @@ document.addEventListener('DOMContentLoaded', function () {
             type: 'doughnut',
 
             data: {
-
                 labels: priorityLabels,
 
                 datasets: [{
-
                     label: 'Tickets',
 
                     data: priorityCounts,
@@ -620,30 +607,24 @@ document.addEventListener('DOMContentLoaded', function () {
                     ],
 
                     borderWidth: 2,
-
                     borderColor: '#ffffff'
-
                 }]
-
             },
 
             options: {
 
                 responsive: true,
-
                 maintainAspectRatio: false,
 
                 plugins: {
 
                     legend: {
-
                         position: 'bottom',
 
                         labels: {
                             padding: 20,
                             usePointStyle: true
                         }
-
                     }
 
                 }
@@ -655,6 +636,11 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 
+    /*
+    |--------------------------------------------------------------------------
+    | AGENT WORKLOAD BAR CHART
+    |--------------------------------------------------------------------------
+    */
 
     const agentCanvas =
         document.getElementById('agentWorkloadChart');
@@ -688,7 +674,6 @@ document.addEventListener('DOMContentLoaded', function () {
             options: {
 
                 responsive: true,
-
                 maintainAspectRatio: false,
 
                 scales: {
@@ -698,9 +683,7 @@ document.addEventListener('DOMContentLoaded', function () {
                         beginAtZero: true,
 
                         ticks: {
-
                             precision: 0
-
                         }
 
                     }
@@ -710,9 +693,7 @@ document.addEventListener('DOMContentLoaded', function () {
                 plugins: {
 
                     legend: {
-
                         display: false
-
                     }
 
                 }
@@ -724,7 +705,6 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 
 });
-
 </script>
 
 @endsection
