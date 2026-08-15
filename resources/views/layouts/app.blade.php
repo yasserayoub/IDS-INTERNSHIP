@@ -231,6 +231,13 @@
     </a>
 @endif
 
+
+
+@if(
+                Auth::check() &&
+                Auth::user()->role->Name == 'Employee'
+            )
+
                 <a
                     href="{{ route('CreateTicket') }}"
                     class="@yield('create-ticket-active')"
@@ -251,8 +258,9 @@
                 >
                     Notifications
                 </a>
+                @endif
 
-         
+
 
 
         </nav>

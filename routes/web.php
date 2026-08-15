@@ -14,6 +14,7 @@ use App\Http\Controllers\ForgotPasswordController;
 use App\Http\Controllers\NotificationController;
 use App\Http\Controllers\ReportController;
 use App\Http\Controllers\AIChatController;
+use App\Http\Controllers\ProfileController;
 
 use App\Mail\TestMail;
 
@@ -45,6 +46,15 @@ Route::get('/admin/users/create', [AdminUserController::class, 'create'])
 Route::post('/admin/users', [AdminUserController::class, 'store'])
     ->middleware('role:Administrator')
     ->name('StoreUser');
+
+    Route::get('/admin/users/{id}/edit', [AdminUserController::class, 'edit'])
+    ->name('admin.users.edit');
+
+Route::put('/admin/users/{id}', [AdminUserController::class, 'update'])
+    ->name('admin.users.update');
+
+Route::patch('/admin/users/{id}/toggle-status', [AdminUserController::class, 'toggleStatus'])
+    ->name('admin.users.toggle-status');
 
 
 
@@ -103,8 +113,9 @@ Route::get(
 
 Route::view('/layout', 'layouts.app');
 
-Route::view('/profile', 'profile.index')
-    ->middleware('role:Administrator,IT Manager,IT Support,Employee');
+ Route::get('/profile', [ProfileController::class, 'index'])
+    ->middleware('role:Administrator,IT Manager,IT Support,Employee')
+    ->name('profile');
 
 Route::get('/dashboard', [ItManagerController::class, 'dashboard'])
     ->middleware('role:IT Manager')
