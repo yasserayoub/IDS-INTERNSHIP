@@ -165,7 +165,7 @@ Route::delete('/employee/tickets/{id}', [EmployeeTicketController::class, 'destr
     ->name('employee.tickets.destroy');
 
 Route::get('/employee/attachments/{id}', [EmployeeTicketController::class, 'download'])
-    ->middleware('role:Administrator,Employee')
+    ->middleware('role:Administrator,IT Manager,IT Support,Employee')
     ->name('employee.tickets.downloadAttachment');
 
 Route::delete('/employee/attachments/{id}', [EmployeeTicketController::class, 'deleteAttachment'])

@@ -59,7 +59,7 @@ class EmployeeTicketController extends Controller
     }
 
 
-   
+
 
     public function store(
         Request $request,
@@ -630,31 +630,20 @@ foreach ($managers as $manager) {
     }
 
 
-    // =========================================================
-    // DOWNLOAD ATTACHMENT
-    // =========================================================
 
-    public function download($id)
-    {
-        $attachment =
-            TicketAttachment::where(
-                'Id',
-                $id
-            )
-            ->where(
-                'UploadedByUserId',
-                Auth::id()
-            )
-            ->firstOrFail();
+// DOWNLOAD ATTACHMENT
 
 
-        return Storage::disk('public')
-            ->download(
-                $attachment->FilePath,
-                $attachment->OriginalFileName
-            );
-    }
+public function download($id)
+{
+    $attachment = TicketAttachment::findOrFail($id);
 
+    return Storage::disk('public')
+        ->download(
+            $attachment->FilePath,
+            $attachment->OriginalFileName
+        );
+}
 
 
 

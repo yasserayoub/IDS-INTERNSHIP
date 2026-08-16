@@ -127,21 +127,34 @@
             </div>
 
 
-            <div class="ticket-attachments">
+          <div class="ticket-attachments">
 
-                <h3>Attachments</h3>
+    <h3>Attachments</h3>
 
-                <div class="attachment-item">
+    @forelse($ticket->attachments as $attachment)
 
-                    <span>📎 vpn-error-screenshot.png</span>
+        <div class="attachment-item">
 
-                    <a href="#">
-                        View
-                    </a>
+            <span>
+                📎 {{ $attachment->OriginalFileName }}
+            </span>
 
-                </div>
+            <a
+                href="{{ route('employee.tickets.downloadAttachment', $attachment->Id) }}"
+                class="btndownload"
+            >
+                Download
+            </a>
 
-            </div>
+        </div>
+
+    @empty
+
+        <p>No attachments uploaded.</p>
+
+    @endforelse
+
+</div>
 
         </section>
 
